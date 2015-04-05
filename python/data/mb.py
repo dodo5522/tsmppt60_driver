@@ -4,6 +4,7 @@
 """ This is low level module to manage TS-MPPT-60. """
 
 import requests
+import logging
 
 __author__ = "Takashi Ando"
 __copyright__ = "Copyright 2015, My own project"
@@ -26,12 +27,13 @@ class ManagementBase(object):
     _I_SCALE_LDEC = 2
     _I_SCALE_RDEC = 3
 
-    def __init__(self, url="http://192.168.1.20", cgi="MBCSV.cgi"):
+    def __init__(self, url="http://192.168.1.20", cgi="MBCSV.cgi", debug=True):
         """ Initialization
 
         Keyword arguments:
             url: URL of TS-MPPT-60 live view
             cgi: CGI file name to get the information
+            debug: If True, logging is enabled.
 
         Returns:
             None
@@ -45,6 +47,9 @@ class ManagementBase(object):
 
         self.vscale = _get_scale(self._V_SCALE_LDEC, self._V_SCALE_RDEC)
         self.iscale = _get_scale(self._I_SCALE_LDEC, self._I_SCALE_RDEC)
+
+        if debug:
+            logging.basicConfig(level=logging.DEBUG)
 
     def _get(self, mbid, addr, reg, field=4):
         """ Get the value against the MBID, Address, Register, and Field.
@@ -65,9 +70,9 @@ class ManagementBase(object):
         params.append("RHI=" + str(reg >> 8))
         params.append("RLO=" + str(reg & 255))
 
-        print("{0}?{1}".format(self._url, "&".join(params)))
-
         res = requests.get("{0}?{1}".format(self._url, "&".join(params)))
+        logging.debug("{0}".format(res.request.url))
+
         return res.text
 
     def read_modbus(self, mbid=_MBID, address=0, register=0):
@@ -86,7 +91,7 @@ class ManagementBase(object):
         idx_value = 3
         ret_str = ""
 
-        print(raw_value_str)
+        logging.debug(raw_value_str)
 
         while idx_value < idx_max + 2:
             ret_short = (raw_values[idx_value] * 256)
