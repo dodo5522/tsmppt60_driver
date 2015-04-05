@@ -38,6 +38,12 @@ class ManagementBase(object):
         Returns:
             None
         """
+        self._logger = logging.getLogger(type(self).__name__)
+        self._logger.addHandler(logging.StreamHandler())
+
+        if debug:
+            self._logger.setLevel(logging.DEBUG)
+
         self._url = url + "/" + cgi
 
         def _get_scale(ldec, rdec):
@@ -45,9 +51,6 @@ class ManagementBase(object):
             R = self.read_modbus(self._MBID, rdec, 1)
             return L + str(int(R) / 65535)
 
-
-        if debug:
-            logging.basicConfig(level=logging.DEBUG)
         self.vscale = float(_get_scale(self._V_SCALE_LDEC, self._V_SCALE_RDEC))
         self.iscale = float(_get_scale(self._I_SCALE_LDEC, self._I_SCALE_RDEC))
 
@@ -71,7 +74,7 @@ class ManagementBase(object):
         params.append("RLO=" + str(reg & 255))
 
         res = requests.get("{0}?{1}".format(self._url, "&".join(params)))
-        logging.debug("{0}".format(res.request.url))
+        self._logger.debug("{0}".format(res.request.url))
 
         return res.text
 
@@ -91,7 +94,7 @@ class ManagementBase(object):
         idx_value = 3
         ret_str = ""
 
-        logging.debug(raw_value_str)
+        self._logger.debug(raw_value_str)
 
         while idx_value < idx_max + 2:
             ret_short = (raw_values[idx_value] * 256)
