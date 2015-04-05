@@ -27,7 +27,7 @@ class ManagementBase(object):
     _I_SCALE_LDEC = 2
     _I_SCALE_RDEC = 3
 
-    def __init__(self, url="http://192.168.1.20", cgi="MBCSV.cgi", debug=True):
+    def __init__(self, url, cgi="MBCSV.cgi", debug=False):
         """ Initialization
 
         Keyword arguments:
