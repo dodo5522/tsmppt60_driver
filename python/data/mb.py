@@ -43,13 +43,13 @@ class ManagementBase(object):
         def _get_scale(ldec, rdec):
             L = self.read_modbus(self._MBID, ldec, 1)
             R = self.read_modbus(self._MBID, rdec, 1)
-            return int(L) + (int(R) / 65535)
+            return L + str(int(R) / 65535)
 
-        self.vscale = _get_scale(self._V_SCALE_LDEC, self._V_SCALE_RDEC)
-        self.iscale = _get_scale(self._I_SCALE_LDEC, self._I_SCALE_RDEC)
 
         if debug:
             logging.basicConfig(level=logging.DEBUG)
+        self.vscale = float(_get_scale(self._V_SCALE_LDEC, self._V_SCALE_RDEC))
+        self.iscale = float(_get_scale(self._I_SCALE_LDEC, self._I_SCALE_RDEC))
 
     def _get(self, mbid, addr, reg, field=4):
         """ Get the value against the MBID, Address, Register, and Field.
