@@ -14,11 +14,11 @@ __status__ = "Production"
 
 if __name__ == "__main__":
     import sys
-    from data import data
+    from driver import data
 
     url = sys.argv[1]
 
     live = data.LiveData(url)
-    for v in live._data_objects:
-        for val in live._data_objects[v].get_all_value():
-            print(val)
+    for group in live._data_objects:
+        for data_in_group in live._data_objects[group].get_all():
+            print(data_in_group)

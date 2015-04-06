@@ -15,7 +15,7 @@ __email__ = "noreply@temp.com"
 __status__ = "Production"
 
 
-class ScaledValue(object):
+class Data(object):
     """ class to manage human readable data got from TS-MPPT-60.
     """
 
@@ -74,8 +74,8 @@ class ScaledValue(object):
         else:
             return "{0:.2f}".format(raw_value)
 
-    def get_value(self, address, scale_factor, label, register):
-        """ get the scaled value against the specified address.
+    def get(self, address, scale_factor, label, register):
+        """ get data against the specified address, register, etc.
 
         Keyword arguments:
             address: address to get a value
@@ -94,20 +94,20 @@ class ScaledValue(object):
 
         return ret_values
 
-    def get_all_value(self):
-        """ get all value of a group.
+    def get_all(self):
+        """ get all data against the inherited class's data group.
 
         Returns: tuple of all got values and parameter.
         """
-        return [self.get_value(*param) for param in self.get_params()]
+        return [self.get(*param) for param in self.get_params()]
 
     def get_params(self):
-        """ get list of all params.
+        """ get list of all params of the inherited class's group.
         """
         raise NotImplementedError
 
 
-class BatteryData(ScaledValue):
+class BatteryData(Data):
     """ class to manage battery data.
     """
 
@@ -116,7 +116,7 @@ class BatteryData(ScaledValue):
         Keyword arguments:
             mb: instance of ManagementBase class
         """
-        ScaledValue.__init__(self, mb, "Battery")
+        Data.__init__(self, mb, "Battery")
 
     def get_params(self):
         """ get list of all params for battery.
@@ -128,7 +128,7 @@ class BatteryData(ScaledValue):
             (58, "W", "Output Power", 1))
 
 
-class SolarArrayData(ScaledValue):
+class SolarArrayData(Data):
     """ class to manage solar array data.
     """
 
@@ -137,7 +137,7 @@ class SolarArrayData(ScaledValue):
         Keyword arguments:
             mb: instance of ManagementBase class
         """
-        ScaledValue.__init__(self, mb, "Array")
+        Data.__init__(self, mb, "Array")
 
     def get_params(self):
         """ get list of all params for solar array.
@@ -150,7 +150,7 @@ class SolarArrayData(ScaledValue):
             (60, "W", "Sweep Pmax", 1))
 
 
-class TemperaturesData(ScaledValue):
+class TemperaturesData(Data):
     """ class to manage temperatures data.
     """
 
@@ -159,7 +159,7 @@ class TemperaturesData(ScaledValue):
         Keyword arguments:
             mb: instance of ManagementBase class
         """
-        ScaledValue.__init__(self, mb, "Temperatures")
+        Data.__init__(self, mb, "Temperatures")
 
     def get_params(self):
         """ get list of all params for temperature.
@@ -167,7 +167,7 @@ class TemperaturesData(ScaledValue):
         return ()
 
 
-class ResettableCountersData(ScaledValue):
+class ResettableCountersData(Data):
     """ class to manage resettable counters data.
     """
 
@@ -176,7 +176,7 @@ class ResettableCountersData(ScaledValue):
         Keyword arguments:
             mb: instance of ManagementBase class
         """
-        ScaledValue.__init__(self, mb, "Resettable Counters")
+        Data.__init__(self, mb, "Resettable Counters")
 
     def get_params(self):
         """ get list of all params for resettable counters.
