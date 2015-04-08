@@ -183,8 +183,8 @@ class LiveData(object):
     """ Class to get all live data of TS-MPPT-60.
     """
 
-    def __init__(self, url):
-        self._mb = ManagementBase(url)
+    def __init__(self, host):
+        self._mb = ManagementBase(host)
 
         self._data_objects = {
             obj._group: obj for obj in (
