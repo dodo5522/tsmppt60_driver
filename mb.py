@@ -1,23 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-""" This is low level module to manage TS-MPPT-60. """
+"""
+TS-MPPT-60 low level driver library.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""
 
 import requests
 import logging
 
-__author__ = "Takashi Ando"
-__copyright__ = "Copyright 2015, My own project"
-__credits__ = ["My wife"]
-__license__ = "GPL"
-__version__ = "0.0.1"
-__maintainer__ = "Takashi Ando"
-__email__ = "noreply@temp.com"
-__status__ = "Production"
-
 
 class ManagementBase(object):
-    """ class to manage raw data got from TS-MPPT-60.
+    """ Class to get raw data from TS-MPPT-60.
     """
     _MBID = 0x01
     _MBP = 502
@@ -27,16 +21,12 @@ class ManagementBase(object):
     _I_SCALE_LDEC = 2
     _I_SCALE_RDEC = 3
 
-    def __init__(self, url, cgi="MBCSV.cgi", debug=False):
-        """ Initialization
-
+    def __init__(self, host, cgi="MBCSV.cgi", debug=False):
+        """
         Keyword arguments:
-            url: URL of TS-MPPT-60 live view
+            host: Host address like "192.168.1.20" of TS-MPPT-60 live view
             cgi: CGI file name to get the information
             debug: If True, logging is enabled.
-
-        Returns:
-            None
         """
         self._logger = logging.getLogger(type(self).__name__)
         self._logger.addHandler(logging.StreamHandler())
@@ -44,7 +34,7 @@ class ManagementBase(object):
         if debug:
             self._logger.setLevel(logging.DEBUG)
 
-        self._url = url + "/" + cgi
+        self._url = "http://" + host + "/" + cgi
 
         def _get_scale(ldec, rdec):
             L = self.read_modbus(self._MBID, ldec, 1)
@@ -55,7 +45,7 @@ class ManagementBase(object):
         self.iscale = float(_get_scale(self._I_SCALE_LDEC, self._I_SCALE_RDEC))
 
     def _get(self, mbid, addr, reg, field=4):
-        """ Get the value against the MBID, Address, Register, and Field.
+        """ Get raw data against MBID, Address, Register, and Field.
 
         Keyword arguments:
             mbid: MBID
@@ -79,14 +69,14 @@ class ManagementBase(object):
         return res.text
 
     def read_modbus(self, mbid=_MBID, address=0, register=0):
-        """ Get the value against the MBID, Address, and Register.
+        """ Read the value against MBID, Address, and Register.
 
         Keyword arguments:
             mbid: MBID
             addr: Address to get information
             reg: Register to get information
 
-        Returns: String like ...
+        Returns: String with short integer (ex. 16bit value).
         """
         raw_value_str = self._get(mbid, address, register)
         raw_values = [int(v) for v in raw_value_str.split(",")]

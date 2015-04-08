@@ -1,42 +1,35 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-""" This is interface module for human readable data of TS-MPPT-60. """
+"""
+TS-MPPT-60 data structure library.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""
 
 from .mb import ManagementBase
 
-__author__ = "Takashi Ando"
-__copyright__ = "Copyright 2015, My own project"
-__credits__ = ["My wife"]
-__license__ = "GPL"
-__version__ = "0.0.1"
-__maintainer__ = "Takashi Ando"
-__email__ = "noreply@temp.com"
-__status__ = "Production"
-
 
 class Data(object):
-    """ class to manage human readable data got from TS-MPPT-60.
+    """ Super class to get data about charging status.
     """
 
     def __init__(self, mb, group):
-        """ calculate the value got from TS-MPPT-60.
-
+        """
         Keyword arguments:
-            mb: instance of ManagementBase class
-            group: string to indicate the group name
+            mb: instance of ManagementBase class.
+            group: string to indicate this instance name.
         """
         self._mb = mb
         self._group = group
 
     def __repr__(self):
-        return self._group
+        return '<%s [%s]>'.format(type(self).__name__, self._group)
 
     def __str__(self):
-        return self._group
+        return '<%s [%s]>'.format(type(self).__name__, self._group)
 
     def _get_scaled_value(self, address, scale_factor, register):
-        """ calculate the value got from TS-MPPT-60.
+        """ Calculate a status value got from TS-MPPT-60.
 
         Keyword arguments:
             address: address to get a value
@@ -75,7 +68,7 @@ class Data(object):
             return "{0:.2f}".format(raw_value)
 
     def get(self, address, scale_factor, label, register):
-        """ get data against the specified address, register, etc.
+        """ Get a data against the specified address, register, etc.
 
         Keyword arguments:
             address: address to get a value
@@ -84,7 +77,7 @@ class Data(object):
             register: register to get a value
 
         Returns: list of label as str, value as float, unit as str
-                 like ("Battery Voltage", 12.1, "V")
+                 like ("Battery Voltage", "12.1", "V")
         """
         ret_values = []
         ret_values.append(label)
@@ -95,20 +88,20 @@ class Data(object):
         return ret_values
 
     def get_all(self):
-        """ get all data against the inherited class's data group.
+        """ Get all data against the inherited class's paramter list.
 
         Returns: tuple of all got values and parameter.
         """
         return [self.get(*param) for param in self.get_params()]
 
     def get_params(self):
-        """ get list of all params of the inherited class's group.
+        """ Get list of all params of the inherited class's group.
         """
         raise NotImplementedError
 
 
 class BatteryData(Data):
-    """ class to manage battery data.
+    """ Class to get data about charging battery.
     """
 
     def __init__(self, mb):
@@ -119,7 +112,7 @@ class BatteryData(Data):
         Data.__init__(self, mb, "Battery")
 
     def get_params(self):
-        """ get list of all params for battery.
+        """ Get a list of all params for battery charging status.
         """
         return (
             (38, "V", "Battery Voltage", 1),
@@ -129,7 +122,7 @@ class BatteryData(Data):
 
 
 class SolarArrayData(Data):
-    """ class to manage solar array data.
+    """ Class to get data about solar array.
     """
 
     def __init__(self, mb):
@@ -140,7 +133,7 @@ class SolarArrayData(Data):
         Data.__init__(self, mb, "Array")
 
     def get_params(self):
-        """ get list of all params for solar array.
+        """ Get a list of all params for solar array status.
         """
         return (
             (27, "V", "Array Voltage", 1),
@@ -151,7 +144,7 @@ class SolarArrayData(Data):
 
 
 class TemperaturesData(Data):
-    """ class to manage temperatures data.
+    """ Class to get data about temperatures sensors.
     """
 
     def __init__(self, mb):
@@ -162,13 +155,13 @@ class TemperaturesData(Data):
         Data.__init__(self, mb, "Temperatures")
 
     def get_params(self):
-        """ get list of all params for temperature.
+        """ Get a list of all params for temperature sensors.
         """
         return ()
 
 
 class ResettableCountersData(Data):
-    """ class to manage resettable counters data.
+    """ Class to get data about resettable counters.
     """
 
     def __init__(self, mb):
@@ -179,7 +172,7 @@ class ResettableCountersData(Data):
         Data.__init__(self, mb, "Resettable Counters")
 
     def get_params(self):
-        """ get list of all params for resettable counters.
+        """ Get a list of all params for resettable counters.
         """
         return (
             (52, "Ah", "Amp Hours", 2),
@@ -187,7 +180,7 @@ class ResettableCountersData(Data):
 
 
 class LiveData(object):
-    """ class to manage all live data of TS-MPPT-60.
+    """ Class to get all live data of TS-MPPT-60.
     """
 
     def __init__(self, url):
