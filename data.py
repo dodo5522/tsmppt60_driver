@@ -49,6 +49,9 @@ class Data(object):
             # raw_value <<= 16
             # raw_value >>= 16
             raw_value &= 0xffff
+            if raw_value & 0x8000:
+                raw_value ^= 0xffff
+                raw_value = -1 * (raw_value + 1)
 
         if scale_factor == "V":
             return "{0:.2f}".format(
