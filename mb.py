@@ -28,8 +28,13 @@ class ManagementBase(object):
             cgi: CGI file name to get the information
             debug: If True, logging is enabled.
         """
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter(
+            "%(asctime)s %(name)s %(levelname)s: %(message)s",
+            "%Y/%m/%d %p %l:%M:%S"))
+
         self._logger = logging.getLogger(type(self).__name__)
-        self._logger.addHandler(logging.StreamHandler())
+        self._logger.addHandler(handler)
 
         if debug:
             self._logger.setLevel(logging.DEBUG)
