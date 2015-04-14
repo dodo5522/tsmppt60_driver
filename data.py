@@ -6,6 +6,7 @@ TS-MPPT-60 data structure library.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 
+import logging
 from .mb import ManagementBase
 
 
@@ -13,7 +14,7 @@ class Data(object):
     """ Super class to get data about charging status.
     """
 
-    def __init__(self, mb, group):
+    def __init__(self, mb, group, debug=False):
         """
         Keyword arguments:
             mb: instance of ManagementBase class.
@@ -21,6 +22,17 @@ class Data(object):
         """
         self._mb = mb
         self._group = group
+
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter(
+            "%(asctime)s %(name)s %(levelname)s: %(message)s",
+            "%Y/%m/%d %p %l:%M:%S"))
+
+        self._logger = logging.getLogger(type(self).__name__)
+        self._logger.addHandler(handler)
+
+        if debug:
+            self._logger.setLevel(logging.DEBUG)
 
     def __repr__(self):
         return '<%s [%s]>'.format(type(self).__name__, self._group)
@@ -107,12 +119,12 @@ class BatteryData(Data):
     """ Class to get data about charging battery.
     """
 
-    def __init__(self, mb):
+    def __init__(self, mb, debug=False):
         """
         Keyword arguments:
             mb: instance of ManagementBase class
         """
-        Data.__init__(self, mb, "Battery")
+        Data.__init__(self, mb, "Battery", debug)
 
     def get_params(self):
         """ Get a list of all params for battery charging status.
@@ -128,12 +140,12 @@ class SolarArrayData(Data):
     """ Class to get data about solar array.
     """
 
-    def __init__(self, mb):
+    def __init__(self, mb, debug=False):
         """
         Keyword arguments:
             mb: instance of ManagementBase class
         """
-        Data.__init__(self, mb, "Array")
+        Data.__init__(self, mb, "Array", debug)
 
     def get_params(self):
         """ Get a list of all params for solar array status.
@@ -150,12 +162,12 @@ class TemperaturesData(Data):
     """ Class to get data about temperatures sensors.
     """
 
-    def __init__(self, mb):
+    def __init__(self, mb, debug=False):
         """
         Keyword arguments:
             mb: instance of ManagementBase class
         """
-        Data.__init__(self, mb, "Temperatures")
+        Data.__init__(self, mb, "Temperatures", debug)
 
     def get_params(self):
         """ Get a list of all params for temperature sensors.
@@ -167,12 +179,12 @@ class ResettableCountersData(Data):
     """ Class to get data about resettable counters.
     """
 
-    def __init__(self, mb):
+    def __init__(self, mb, debug=False):
         """
         Keyword arguments:
             mb: instance of ManagementBase class
         """
-        Data.__init__(self, mb, "Resettable Counters")
+        Data.__init__(self, mb, "Resettable Counters", debug)
 
     def get_params(self):
         """ Get a list of all params for resettable counters.
@@ -186,12 +198,12 @@ class LiveData(object):
     """ Class to get all live data of TS-MPPT-60.
     """
 
-    def __init__(self, host):
-        self._mb = ManagementBase(host)
+    def __init__(self, host, debug=False):
+        self._mb = ManagementBase(host, debug=debug)
 
         self._data_objects = {
             obj._group: obj for obj in (
-                BatteryData(self._mb),
-                SolarArrayData(self._mb),
-                TemperaturesData(self._mb),
-                ResettableCountersData(self._mb))}
+                BatteryData(self._mb, debug),
+                SolarArrayData(self._mb, debug),
+                TemperaturesData(self._mb, debug),
+                ResettableCountersData(self._mb, debug))}
