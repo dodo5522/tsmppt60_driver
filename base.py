@@ -100,7 +100,7 @@ class ManagementBase(object):
         return ret_str
 
 
-class _ChargeControllerStatus(object):
+class ChargeControllerStatus(object):
     """ Abstract class to get data about charge controller status.
     """
 
@@ -192,97 +192,3 @@ class _ChargeControllerStatus(object):
         """ Get list of all params of the inherited class's group.
         """
         raise NotImplementedError
-
-
-class BatteryStatus(_ChargeControllerStatus):
-    """ Class to get data about charging battery.
-    """
-
-    def __init__(self, mb):
-        """
-        Keyword arguments:
-            mb: instance of ManagementBase class
-        """
-        _ChargeControllerStatus.__init__(self, mb, "Battery")
-
-    def get_params(self):
-        """ Get a list of all params for battery charging status.
-        """
-        return (
-            (38, "V", "Battery Voltage", 1),
-            (51, "V", "Target Voltage", 1),
-            (39, "A", "Charge Current", 1),
-            (58, "W", "Output Power", 1))
-
-
-class SolarArrayStatus(_ChargeControllerStatus):
-    """ Class to get data about solar array.
-    """
-
-    def __init__(self, mb):
-        """
-        Keyword arguments:
-            mb: instance of ManagementBase class
-        """
-        _ChargeControllerStatus.__init__(self, mb, "Array")
-
-    def get_params(self):
-        """ Get a list of all params for solar array status.
-        """
-        return (
-            (27, "V", "Array Voltage", 1),
-            (29, "A", "Array Current", 1),
-            (61, "V", "Sweep Vmp", 1),
-            (62, "V", "Sweep Voc", 1),
-            (60, "W", "Sweep Pmax", 1))
-
-
-class TemperaturesStatus(_ChargeControllerStatus):
-    """ Class to get data about temperatures sensors.
-    """
-
-    def __init__(self, mb):
-        """
-        Keyword arguments:
-            mb: instance of ManagementBase class
-        """
-        _ChargeControllerStatus.__init__(self, mb, "Temperatures")
-
-    def get_params(self):
-        """ Get a list of all params for temperature sensors.
-        """
-        return ()
-
-
-class CountersStatus(_ChargeControllerStatus):
-    """ Class to get data about resettable counters.
-    """
-
-    def __init__(self, mb):
-        """
-        Keyword arguments:
-            mb: instance of ManagementBase class
-        """
-        _ChargeControllerStatus.__init__(self, mb, "Resettable Counters")
-
-    def get_params(self):
-        """ Get a list of all params for resettable counters.
-        """
-        return (
-            (52, "Ah", "Amp Hours", 2),
-            (56, "kWh", "Kilowatt Hours", 1))
-
-
-class LiveData(object):
-    """ Class to get all live data of TS-MPPT-60.
-    """
-
-    def __init__(self, host):
-        self._mb = ManagementBase(host)
-
-        self._data_objects = {
-            obj._group: obj for obj in (
-                BatteryStatus(self._mb),
-                SolarArrayStatus(self._mb),
-                TemperaturesStatus(self._mb),
-                CountersStatus(self._mb))}
