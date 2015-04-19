@@ -23,4 +23,6 @@ class TemperaturesStatus(ChargeControllerStatus):
     def get_params(self):
         """ Get a list of all params for temperature sensors.
         """
-        return ()
+        return (
+            (37, "C", "Battery Temperature", 1),
+            (35, "C", "Heat Sink Temperature", 1))
