@@ -7,10 +7,10 @@ TS-MPPT-60 library to get all status data.
 """
 
 from .base import ManagementBase
-from .battery import BatteryStatus
-from .array import SolarArrayStatus
-from .temperature import TemperaturesStatus
-from .counter import CountersStatus
+from .status import BatteryStatus
+from .status import SolarArrayStatus
+from .status import TemperaturesStatus
+from .status import CountersStatus
 
 
 class LiveData(object):
