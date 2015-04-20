@@ -172,7 +172,7 @@ class ChargeControllerStatus(object):
         else:
             return "{0:.2f}".format(raw_value)
 
-    def get(self, address, scale_factor, label, register):
+    def get_status(self, address, scale_factor, label, register):
         """ Get a data against the specified address, register, etc.
 
         Keyword arguments:
@@ -192,12 +192,12 @@ class ChargeControllerStatus(object):
 
         return ret_values
 
-    def get_all(self):
+    def get_all_status(self):
         """ Get all data against the inherited class's paramter list.
 
         Returns: tuple of all got values and parameter.
         """
-        return [self.get(*param) for param in self.get_params()]
+        return [self.get_status(*param) for param in self.get_params()]
 
     def get_params(self):
         """ Get list of all params of the inherited class's group.
