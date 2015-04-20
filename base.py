@@ -167,9 +167,7 @@ class ChargeControllerStatus(object):
                 (raw_value * wscale) / 131072.0 / 100.0)
         elif scale_factor == "Ah":
             return "{0:.1f}".format(raw_value * 0.1)
-        elif scale_factor == "kWh":
-            return "{0:.0f}".format(raw_value)
-        elif scale_factor == "C":
+        elif scale_factor == "kWh" or scale_factor == "C":
             return "{0:.0f}".format(raw_value)
         else:
             return "{0:.2f}".format(raw_value)
