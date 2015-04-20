@@ -203,3 +203,10 @@ class ChargeControllerStatus(object):
         """ Get list of all params of the inherited class's group.
         """
         raise NotImplementedError
+
+    def get_group(self):
+        """ Get group name string of this instance.
+
+        Returns: string
+        """
+        return self._group
