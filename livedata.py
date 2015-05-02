@@ -14,7 +14,22 @@ from .status import CountersStatus
 
 
 class LiveData(object):
-    """ Class to get all live data of TS-MPPT-60.
+    """ This class is iterator and dict containing all live data of TS-MPPT-60.
+        Use this object like below.
+
+        live = LiveData("192.168.1.20")
+
+        for group in live:
+            # group is like "Battery" and this is key
+            live_data_obj = live[group]
+            # get_all_status method returns all data of the group
+            live_data = live_data_obj.get_all_status()
+            # live_data is list. first item is id name like "Battery Voltage"
+            print("id: {}".format(live_data[0]))
+            # second item is value like "12.4"
+            print("val: {}".format(live_data[1]))
+            # third item is unit like "V"
+            print("unit: {}".format(live_data[2]))
     """
 
     def __init__(self, host):
