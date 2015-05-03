@@ -10,7 +10,7 @@ TS-MPPT-60.
 """
 
 __title__ = "tsmppt60_driver"
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 __author__ = "Takashi Ando"
 __license__ = "GPL"
 __copyright__ = "Copyright 2015 Takashi Ando"
