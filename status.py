@@ -61,7 +61,7 @@ class TemperaturesStatus(ChargeControllerStatus):
         Keyword arguments:
             mb: instance of ManagementBase class
         """
-        ChargeControllerStatus.__init__(self, mb, "Temperatures")
+        ChargeControllerStatus.__init__(self, mb, "Temperature")
 
     def get_params(self):
         """ Get a list of all params for temperature sensors.
@@ -80,7 +80,7 @@ class CountersStatus(ChargeControllerStatus):
         Keyword arguments:
             mb: instance of ManagementBase class
         """
-        ChargeControllerStatus.__init__(self, mb, "Resettable Counters")
+        ChargeControllerStatus.__init__(self, mb, "Counter")
 
     def get_params(self):
         """ Get a list of all params for resettable counters.
