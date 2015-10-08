@@ -150,10 +150,10 @@ class ChargeControllerStatus(object):
             self._logger.setLevel(logging.DEBUG)
 
     def __repr__(self):
-        return '<%s [%s]>'.format(type(self).__name__, self._group)
+        return self._group
 
     def __str__(self):
-        return '<%s [%s]>'.format(type(self).__name__, self._group)
+        return self._group
 
     def _get_scaled_value(self, address, scale_factor, register):
         """ Calculate a status value got from TS-MPPT-60.
@@ -228,10 +228,3 @@ class ChargeControllerStatus(object):
         """ Get list of all params of the inherited class's group.
         """
         raise NotImplementedError
-
-    def get_group(self):
-        """ Get group name string of this instance.
-
-        Returns: string
-        """
-        return self._group
