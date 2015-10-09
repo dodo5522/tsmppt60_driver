@@ -46,12 +46,13 @@ class LiveStatus(object):
 
     def __iter__(self):
         self._index = 0
-        return self._status
+        return self
 
     def __next__(self):
-        self._index += 1
-
         if self._index >= len(self._status):
             raise StopIteration
 
-        return self._status[self._index]
+        stat_obj = self._status[self._index]
+        self._index += 1
+
+        return stat_obj
