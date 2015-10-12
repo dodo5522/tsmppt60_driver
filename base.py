@@ -206,14 +206,20 @@ class ChargeControllerStatus(object):
             label: label string of got value
             register: register to get a value
 
-        Returns: list of label as str, value as float, unit as str
-                 like ("Battery Voltage", "12.1", "V")
+        Returns: str of group, label as str, value as float, unit as str like
+            {
+                "group": "battery",
+                "label": "Battery Voltage",
+                "value": 12.1,
+                "unit": "V"
+            }
         """
-        ret_values = []
-        ret_values.append(label)
-        ret_values.append(
-            self._get_scaled_value(address, scale_factor, register))
-        ret_values.append(scale_factor)
+        ret_values = {}
+        ret_values["group"] = self._group
+        ret_values["label"] = label
+        ret_values["value"] = float(self._get_scaled_value(
+            address, scale_factor, register))
+        ret_values["unit"] = scale_factor
 
         return ret_values
 
