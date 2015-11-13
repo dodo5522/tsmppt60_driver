@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-from distutils.core import setup, find_packages
+from setuptools import setup
 
 setup(
-    name="tsmppt60_driver",
-    version="0.0.3",
-    description="Python module to access TS-MPPT-60",
+    name="tsmppt60-driver",
+    version="0.0.5",
+    description="Python module to get data from TS-MPPT-60.",
     author="Takashi Ando",
     url="https://github.com/dodo5522/tsmppt60_driver",
-    packages=find_packages())
+    install_requires=[
+        "requests>=2.6.0"],
+    packages=[
+        "tsmppt60_driver"])
