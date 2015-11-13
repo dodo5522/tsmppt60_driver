@@ -21,13 +21,13 @@ Use this object like below.
 ```python3
 from tsmppt60_driver import live
 
-status_all = live.StatusAll("192.168.1.20")
+status_all = live.SystemStatus("192.168.1.20")
 
 for stat in status_all:
     # This stat has some group and you can get it by str().
     group = str(stat)
     # get_all_status method returns all data of the stat.
-    live_data = stat.get_all_status()
+    live_data = stat.get_status_all()
     # live_data is tuple. first item is id like "Battery Voltage"
     print("id: {}".format(live_data[0]))
     # second item is value like "12.4"

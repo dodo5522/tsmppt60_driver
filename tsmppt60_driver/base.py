@@ -223,10 +223,22 @@ class ChargeControllerStatus(object):
 
         return ret_values
 
-    def get_all_status(self):
+    def get_status_all(self):
         """ Get all data against the inherited class's paramter list.
 
-        Returns: tuple of all got values and parameter.
+        Returns: tuple of all got values and parameter like below.
+            {
+                "group": "Battery",
+                "label": "Battery Voltage",
+                "value": 12.1,
+                "unit": "V"
+            },
+            {
+                "group": "Battery",
+                "label": "Charge Current",
+                "value": 8.4,
+                "unit": "A"
+            }
         """
         return [self.get_status(*param) for param in self.get_params()]
 
