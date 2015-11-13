@@ -13,13 +13,13 @@ from .status import TemperaturesStatus
 from .status import CountersStatus
 
 
-class LiveStatus(object):
+class StatusAll(object):
     """ This is iterator object containing all live status data of TS-MPPT-60.
         Use this object like below.
 
-        live = LiveStatus("192.168.1.20")
+        status_all = StatusAll("192.168.1.20")
 
-        for stat in live:
+        for stat in status_all:
             # This stat has some group and you can get it by str().
             group = str(stat)
             # get_all_status method returns all data of the stat.
