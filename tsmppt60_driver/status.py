@@ -95,12 +95,13 @@ class CountersStatus(ChargeControllerStatus):
     """ Class to get data about resettable counters.
     """
 
-    def __init__(self, mb):
+    def __init__(self, mb, is_limit=True):
         """
         Keyword arguments:
             mb: instance of ManagementBase class
         """
         ChargeControllerStatus.__init__(self, mb, "Counter")
+        self._is_limit = is_limit
 
     def get_params(self):
         """ Get a list of all params for resettable counters.
