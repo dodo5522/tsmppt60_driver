@@ -14,31 +14,53 @@ from .status import CountersStatus
 
 
 class SystemStatus(object):
-    """ This is iterator object containing the system status of TS-MPPT-60.
-        Use this object like below.
+    """ This is class to get the system status of TS-MPPT-60.
+        Use this like below.
 
-        system_status= SystemStatus("192.168.1.20").get()
+        print(SystemStatus("192.168.1.20").get())
 
-        # get() method returns dict and you can parse it like below.
-        for key, data in system_status.items():
-            # get element name. (like "Battery Voltage", ...)
-            elem = key
-            # get group. (like "Battery", "Array", ...)
-            group = data["group"]
-            # get value. (like 24.1[V])
-            value = data["value"]
-            # get unit. (like "kWh")
-            unit = data["unit"]
+        {'Amp Hours': {'group': 'Counter', 'unit': 'Ah', 'value': 18097.9},
+         'Array Current': {'group': 'Array', 'unit': 'A', 'value': 1.4},
+         'Array Voltage': {'group': 'Array', 'unit': 'V', 'value': 53.41},
+         'Battery Voltage': {'group': 'Battery', 'unit': 'V', 'value': 23.93},
+         'Charge Current': {'group': 'Battery', 'unit': 'A', 'value': 3.2},
+         'Heat Sink Temperature': {'group': 'Temperature', 'unit': 'C', 'value': 25.0},
+         'Kilowatt Hours': {'group': 'Counter', 'unit': 'kWh', 'value': 237.0},
+         'Target Voltage': {'group': 'Battery', 'unit': 'V', 'value': 28.6}}
+
+        The above data is limited information. You can disable the limitter
+        like below.
+
+        print(SystemStatus("192.168.1.20", False).get())
+
+        {'Amp Hours': {'group': 'Counter', 'unit': 'Ah', 'value': 18097.8},
+         'Array Current': {'group': 'Array', 'unit': 'A', 'value': 1.3},
+         'Array Voltage': {'group': 'Array', 'unit': 'V', 'value': 53.41},
+         'Battery Temperature': {'group': 'Temperature', 'unit': 'C', 'value': 25.0},
+         'Battery Voltage': {'group': 'Battery', 'unit': 'V', 'value': 24.01},
+         'Charge Current': {'group': 'Battery', 'unit': 'A', 'value': 3.2},
+         'Heat Sink Temperature': {'group': 'Temperature', 'unit': 'C', 'value': 25.0},
+         'Kilowatt Hours': {'group': 'Counter', 'unit': 'kWh', 'value': 237.0},
+         'Output Power': {'group': 'Battery', 'unit': 'W', 'value': 76.0},
+         'Sweep Pmax': {'group': 'Array', 'unit': 'W', 'value': 73.0},
+         'Sweep Vmp': {'group': 'Array', 'unit': 'V', 'value': 53.41},
+         'Sweep Voc': {'group': 'Array', 'unit': 'V', 'value': 60.05},
+         'Target Voltage': {'group': 'Battery', 'unit': 'V', 'value': 28.6}}
     """
 
-    def __init__(self, host):
+    def __init__(self, host, is_limit=True):
+        """
+        Keyword arguments:
+            host: host address like "192.168.1.20"
+            is_limit: limit the number of getting status
+        """
         _mb = ManagementBase(host)
 
         self._devices = (
-            BatteryStatus(_mb),
-            SolarArrayStatus(_mb),
-            TemperaturesStatus(_mb),
-            CountersStatus(_mb))
+            BatteryStatus(_mb, is_limit),
+            SolarArrayStatus(_mb, is_limit),
+            TemperaturesStatus(_mb, is_limit),
+            CountersStatus(_mb, is_limit))
 
     def get(self):
         """ Get all status of devices.
