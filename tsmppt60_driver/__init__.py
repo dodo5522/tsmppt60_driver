@@ -24,7 +24,7 @@ class SystemStatus(object):
          'Array Voltage': {'group': 'Array', 'unit': 'V', 'value': 53.41},
          'Battery Voltage': {'group': 'Battery', 'unit': 'V', 'value': 23.93},
          'Charge Current': {'group': 'Battery', 'unit': 'A', 'value': 3.2},
-         'Heat Sink Temperature': {'group': 'Temperature', 'unit': 'C', 'value': 25.0},
+         'Heat Sink Temperature': {'group': 'Temperature', 'unit': 'C', ...},
          'Kilowatt Hours': {'group': 'Counter', 'unit': 'kWh', 'value': 237.0},
          'Target Voltage': {'group': 'Battery', 'unit': 'V', 'value': 28.6}}
 
@@ -36,10 +36,10 @@ class SystemStatus(object):
         {'Amp Hours': {'group': 'Counter', 'unit': 'Ah', 'value': 18097.8},
          'Array Current': {'group': 'Array', 'unit': 'A', 'value': 1.3},
          'Array Voltage': {'group': 'Array', 'unit': 'V', 'value': 53.41},
-         'Battery Temperature': {'group': 'Temperature', 'unit': 'C', 'value': 25.0},
+         'Battery Temperature': {'group': 'Temperature', 'unit': 'C', ...},
          'Battery Voltage': {'group': 'Battery', 'unit': 'V', 'value': 24.01},
          'Charge Current': {'group': 'Battery', 'unit': 'A', 'value': 3.2},
-         'Heat Sink Temperature': {'group': 'Temperature', 'unit': 'C', 'value': 25.0},
+         'Heat Sink Temperature': {'group': 'Temperature', 'unit': 'C', ...},
          'Kilowatt Hours': {'group': 'Counter', 'unit': 'kWh', 'value': 237.0},
          'Output Power': {'group': 'Battery', 'unit': 'W', 'value': 76.0},
          'Sweep Pmax': {'group': 'Array', 'unit': 'W', 'value': 73.0},
