@@ -2,5 +2,6 @@
 tsmppt60_driver.egg-info
 build
 dist
+docs
 *.swp
 *.pyc
