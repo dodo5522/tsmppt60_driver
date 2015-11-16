@@ -2,8 +2,7 @@
 # -*- coding:utf-8 -*-
 
 """
-TS-MPPT-60 library to get all status data.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TS-MPPT-60 driver library to get all devices status data.
 """
 
 from .base import ManagementBase
@@ -14,8 +13,9 @@ from .status import CountersStatus
 
 
 class SystemStatus(object):
-    """ This is class to get the system status of TS-MPPT-60.
-        Use this like below.
+    """
+    This is class to get the system status of TS-MPPT-60.
+    Use this like below.
 
         print(SystemStatus("192.168.1.20").get())
 
@@ -28,8 +28,8 @@ class SystemStatus(object):
          'Kilowatt Hours': {'group': 'Counter', 'unit': 'kWh', 'value': 237.0},
          'Target Voltage': {'group': 'Battery', 'unit': 'V', 'value': 28.6}}
 
-        The above data is limited information. You can disable the limitter
-        like below.
+    The above data is limited information. You can disable the limitter
+    like below.
 
         print(SystemStatus("192.168.1.20", False).get())
 
@@ -50,9 +50,10 @@ class SystemStatus(object):
 
     def __init__(self, host, is_limit=True):
         """
-        Keyword arguments:
-            host: host address like "192.168.1.20"
-            is_limit: limit the number of getting status
+        Initialize class object.
+
+        :param host: host address like "192.168.1.20"
+        :param is_limit: limit the number of getting status
         """
         _mb = ManagementBase(host)
 
@@ -63,9 +64,10 @@ class SystemStatus(object):
             CountersStatus(_mb, is_limit))
 
     def get(self):
-        """ Get all status of devices.
+        """
+        Get all status of devices.
 
-        Returns:
+        :return: like below dictionary object.
             {
                 "Battery Voltage":{
                     "group": "Battery",

@@ -2,8 +2,7 @@
 # -*- coding:utf-8 -*-
 
 """
-TS-MPPT-60 data structure library.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TS-MPPT-60 driver's base modules.
 """
 
 import requests
@@ -15,6 +14,12 @@ class Logger(object):
     _FORMAT_LOG_DATE = "%Y/%m/%d %p %l:%M:%S"
 
     def __init__(self, log_file_path=None, debug=False):
+        """
+        Initialize Logger class object.
+
+        :param log_file_path: Path to record log file.
+        :param debug: If True, logging is enabled.
+        """
         self.logger = logging.getLogger(type(self).__name__)
 
         handler = logging.StreamHandler()
@@ -35,7 +40,8 @@ class Logger(object):
 
 
 class ManagementBase(object):
-    """ Class to get raw data from TS-MPPT-60.
+    """
+    Class to get raw data from TS-MPPT-60.
     """
     _MBID = 0x01
     _MBP = 502
@@ -47,10 +53,11 @@ class ManagementBase(object):
 
     def __init__(self, host, cgi="MBCSV.cgi", debug=False):
         """
-        Keyword arguments:
-            host: Host address like "192.168.1.20" of TS-MPPT-60 live view
-            cgi: CGI file name to get the information
-            debug: If True, logging is enabled.
+        Initialize class object.
+
+        :param host: Host address like "192.168.1.20" of TS-MPPT-60 live view
+        :param cgi: CGI file name to get the information
+        :param debug: If True, logging is enabled.
         """
         self._logger = logging.getLogger(type(self).__name__)
         self._logger.addHandler(logging.StreamHandler())
@@ -69,15 +76,14 @@ class ManagementBase(object):
         self.iscale = float(_get_scale(self._I_SCALE_LDEC, self._I_SCALE_RDEC))
 
     def _get(self, mbid, addr, reg, field=4):
-        """ Get raw data against MBID, Address, Register, and Field.
+        """
+        Get raw data against MBID, Address, Register, and Field.
 
-        Keyword arguments:
-            mbid: MBID
-            addr: Address to get information
-            reg: Register to get information
-            field: Field to get information
-
-        Returns: String like "1,4,1,1,1"
+        :param mbid: MBID
+        :param addr: Address to get information
+        :param reg: Register to get information
+        :param field: Field to get information
+        :return: String like "1,4,1,1,1"
         """
         params = []
         params.append("ID=" + str(mbid))
@@ -94,14 +100,13 @@ class ManagementBase(object):
         return res.text
 
     def read_modbus(self, mbid=_MBID, address=0, register=0):
-        """ Read the value against MBID, Address, and Register.
+        """
+        Read the value against MBID, Address, and Register.
 
-        Keyword arguments:
-            mbid: MBID
-            addr: Address to get information
-            reg: Register to get information
-
-        Returns: String with short integer (ex. 16bit value).
+        :param mbid: MBID
+        :param addr: Address to get information
+        :param reg: Register to get information
+        :return: String with short integer (ex. 16bit value).
         """
         raw_value_str = self._get(mbid, address, register)
         raw_values = [int(v) for v in raw_value_str.split(",")]
@@ -126,14 +131,17 @@ class ManagementBase(object):
 
 
 class ChargeControllerStatus(object):
-    """ Abstract class to get data about charge controller status.
+    """
+    Abstract class to get data about charge controller status.
     """
 
     def __init__(self, mb, group, debug=False):
         """
-        Keyword arguments:
-            mb: instance of ManagementBase class.
-            group: string to indicate this instance name.
+        Initialize class object.
+
+        :param mb: instance of ManagementBase class.
+        :param group: string to indicate this instance name.
+        :param debug: If True, logging is enabled.
         """
         self._mb = mb
         self._group = group
@@ -156,14 +164,13 @@ class ChargeControllerStatus(object):
         return self._group
 
     def _get_scaled_value(self, address, scale_factor, register):
-        """ Calculate a status value got from TS-MPPT-60.
+        """
+        Calculate a status value got from TS-MPPT-60.
 
-        Keyword arguments:
-            address: address to get a value
-            scale_factor: unit string
-            register: register to get a value
-
-        Returns: value as string
+        :param address: address to get a value
+        :param scale_factor: unit string
+        :param register: register to get a value
+        :return: value as string
         """
         raw_value_str = self._mb.read_modbus(
             address=address, register=register)
@@ -198,15 +205,14 @@ class ChargeControllerStatus(object):
             return "{0:.2f}".format(raw_value)
 
     def get_status(self, address, scale_factor, label, register):
-        """ Get a data against the specified address, register, etc.
+        """
+        Get a data against the specified address, register, etc.
 
-        Keyword arguments:
-            address: address to get a value
-            scale_factor: unit string
-            label: label string of got value
-            register: register to get a value
-
-        Returns: str of group, label as str, value as float, unit as str like
+        :param address: address to get a value
+        :param scale_factor: unit string
+        :param label: label string of got value
+        :param register: register to get a value
+        :return: str of group, label as str, value as float, unit as str like
             {
                 "group": "battery",
                 "label": "Battery Voltage",
@@ -224,9 +230,10 @@ class ChargeControllerStatus(object):
         return ret_values
 
     def get_status_all(self):
-        """ Get all data against the inherited class's paramter list.
+        """
+        Get all data against the inherited class's paramter list.
 
-        Returns: tuple of all got values and parameter like below.
+        :return: tuple of all got values and parameter like this.
             {
                 "group": "Battery",
                 "label": "Battery Voltage",
@@ -243,6 +250,12 @@ class ChargeControllerStatus(object):
         return [self.get_status(*param) for param in self.get_params()]
 
     def get_params(self):
-        """ Get list of all params of the inherited class's group.
+        """
+        Get list of all params of the inherited class's group.
+
+        :return: tuple of parameter list like this.
+            ((61, "V", "Sweep Vmp", 1),
+             (62, "V", "Sweep Voc", 1),
+             (60, "W", "Sweep Pmax", 1))
         """
         raise NotImplementedError

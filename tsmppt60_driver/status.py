@@ -2,28 +2,32 @@
 # -*- coding:utf-8 -*-
 
 """
-TS-MPPT-60 status data library.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TS-MPPT-60 driver's modules inherites base modules.
 """
 
 from .base import ChargeControllerStatus
 
 
 class BatteryStatus(ChargeControllerStatus):
-    """ Class to get data about charging battery.
+    """
+    Class to get data about charging battery.
     """
 
     def __init__(self, mb, is_limit=True):
         """
-        Keyword arguments:
-            mb: instance of ManagementBase class
-            is_limit: limit the number of getting status
+        Initialize BatteryStatus class object.
+
+        :param mb: instance of ManagementBase class
+        :param is_limit: limit the number of getting status
         """
         ChargeControllerStatus.__init__(self, mb, "Battery")
         self._is_limit = is_limit
 
     def get_params(self):
-        """ Get a list of all params for battery charging status.
+        """
+        Get a list of all params for battery charging status.
+
+        :return: Parameter list to get battery status.
         """
         params = [
             (38, "V", "Battery Voltage", 1),
@@ -37,20 +41,25 @@ class BatteryStatus(ChargeControllerStatus):
 
 
 class SolarArrayStatus(ChargeControllerStatus):
-    """ Class to get data about solar array.
+    """
+    Class to get data about solar array.
     """
 
     def __init__(self, mb, is_limit=True):
         """
-        Keyword arguments:
-            mb: instance of ManagementBase class
-            is_limit: limit the number of getting status
+        Initialize SolarArrayStatus class object.
+
+        :param mb: instance of ManagementBase class
+        :param is_limit: limit the number of getting status
         """
         ChargeControllerStatus.__init__(self, mb, "Array")
         self._is_limit = is_limit
 
     def get_params(self):
-        """ Get a list of all params for solar array status.
+        """
+        Get a list of all params for solar array status.
+
+        :return: Parameter list to get solar array status.
         """
         params = [
             (27, "V", "Array Voltage", 1),
@@ -66,20 +75,25 @@ class SolarArrayStatus(ChargeControllerStatus):
 
 
 class TemperaturesStatus(ChargeControllerStatus):
-    """ Class to get data about temperatures sensors.
+    """
+    Class to get data about temperatures sensors.
     """
 
     def __init__(self, mb, is_limit=True):
         """
-        Keyword arguments:
-            mb: instance of ManagementBase class
-            is_limit: limit the number of getting status
+        Initialize SolarArrayStatus class object.
+
+        :param mb: instance of ManagementBase class
+        :param is_limit: limit the number of getting status
         """
         ChargeControllerStatus.__init__(self, mb, "Temperature")
         self._is_limit = is_limit
 
     def get_params(self):
-        """ Get a list of all params for temperature sensors.
+        """
+        Get a list of all params for temperature sensors.
+
+        :return: Parameter list to get temperature status.
         """
         params = [
             (35, "C", "Heat Sink Temperature", 1)]
@@ -92,19 +106,25 @@ class TemperaturesStatus(ChargeControllerStatus):
 
 
 class CountersStatus(ChargeControllerStatus):
-    """ Class to get data about resettable counters.
+    """
+    Class to get data about resettable counters.
     """
 
     def __init__(self, mb, is_limit=True):
         """
-        Keyword arguments:
-            mb: instance of ManagementBase class
+        Initialize CountersStaus class object.
+
+        :param mb: instance of ManagementBase class
+        :param is_limit: limit the number of getting status
         """
         ChargeControllerStatus.__init__(self, mb, "Counter")
         self._is_limit = is_limit
 
     def get_params(self):
-        """ Get a list of all params for resettable counters.
+        """
+        Get a list of all params for resettable counters.
+
+        :return: Parameter list to get counter status.
         """
         return (
             (52, "Ah", "Amp Hours", 2),
