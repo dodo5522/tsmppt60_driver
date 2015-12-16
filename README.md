@@ -27,7 +27,7 @@ This is python driver module to get the following status of TS-MPPT-60.
 
 # How to use
 
-LiveStatus class object is iterator containing all live status data of TS-MPPT-60. Try the following line.
+SystemStatus class object is iterator containing all live status data of TS-MPPT-60. Try the following line.
 
 ```python
     print(SystemStatus("192.168.1.20").get())
