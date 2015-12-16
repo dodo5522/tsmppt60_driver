@@ -229,10 +229,11 @@ class ChargeControllerStatus(object):
 
         return ret_values
 
-    def get_status_all(self):
+    def get_status_all(self, is_limit=True):
         """
         Get all data against the inherited class's paramter list.
 
+        :param is_limit: limit the number of getting status
         :return: tuple of all got values and parameter like this.
             {
                 "group": "Battery",
@@ -249,10 +250,11 @@ class ChargeControllerStatus(object):
         """
         return [self.get_status(*param) for param in self.get_params()]
 
-    def get_params(self):
+    def get_params(self, is_limit=True):
         """
         Get list of all params of the inherited class's group.
 
+        :param is_limit: limit the number of getting status
         :return: tuple of parameter list like this.
             ((61, "V", "Sweep Vmp", 1),
              (62, "V", "Sweep Voc", 1),

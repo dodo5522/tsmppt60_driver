@@ -5,11 +5,11 @@
 TS-MPPT-60 driver library to get all devices status data.
 """
 
-from .base import ManagementBase
-from .status import BatteryStatus
-from .status import SolarArrayStatus
-from .status import TemperaturesStatus
-from .status import CountersStatus
+from tsmppt60_driver.base import ManagementBase
+from tsmppt60_driver.status import BatteryStatus
+from tsmppt60_driver.status import SolarArrayStatus
+from tsmppt60_driver.status import TemperaturesStatus
+from tsmppt60_driver.status import CountersStatus
 
 
 class SystemStatus(object):
@@ -48,25 +48,25 @@ class SystemStatus(object):
          'Target Voltage': {'group': 'Battery', 'unit': 'V', 'value': 28.6}}
     """
 
-    def __init__(self, host, is_limit=True):
+    def __init__(self, host):
         """
         Initialize class object.
 
         :param host: host address like "192.168.1.20"
-        :param is_limit: limit the number of getting status
         """
         _mb = ManagementBase(host)
 
         self._devices = (
-            BatteryStatus(_mb, is_limit),
-            SolarArrayStatus(_mb, is_limit),
-            TemperaturesStatus(_mb, is_limit),
-            CountersStatus(_mb, is_limit))
+            BatteryStatus(_mb),
+            SolarArrayStatus(_mb),
+            TemperaturesStatus(_mb),
+            CountersStatus(_mb))
 
-    def get(self):
+    def get(self, is_limit=True):
         """
         Get all status of devices.
 
+        :param is_limit: limit the number of getting status
         :return: like below dictionary object.
             {
                 "Battery Voltage":{
