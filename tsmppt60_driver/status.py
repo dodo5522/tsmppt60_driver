@@ -6,6 +6,7 @@ TS-MPPT-60 driver's internal modules inherites base modules.
 """
 
 from tsmppt60_driver.base import ChargeControllerStatus
+from tsmppt60_driver.base import ModbusRegisterTable
 
 
 class BatteryStatus(ChargeControllerStatus):
@@ -52,12 +53,12 @@ class BatteryStatus(ChargeControllerStatus):
         True
         """
         params = [
-            (38, "V", "Battery Voltage", 1),
-            (51, "V", "Target Voltage", 1),
-            (39, "A", "Charge Current", 1)]
+            ModbusRegisterTable.BATTERY_VOLTAGE,
+            ModbusRegisterTable.TARGET_REGULATION_VOLTAGE,
+            ModbusRegisterTable.CHARGING_CURRENT]
 
         if not is_limit:
-            params.append((58, "W", "Output Power", 1))
+            params.append(ModbusRegisterTable.OUTPUT_POWER)
 
         return params
 
@@ -65,6 +66,12 @@ class BatteryStatus(ChargeControllerStatus):
 class SolarArrayStatus(ChargeControllerStatus):
     """
     Class to get data about solar array.
+
+    * array voltage
+    * array current
+    * sweep vmp
+    * sweep voc
+    * sweep pmax
     """
 
     def __init__(self, mb):
@@ -100,14 +107,14 @@ class SolarArrayStatus(ChargeControllerStatus):
         True
         """
         params = [
-            (27, "V", "Array Voltage", 1),
-            (29, "A", "Array Current", 1)]
+            ModbusRegisterTable.ARRAY_VOLTAGE,
+            ModbusRegisterTable.ARRAY_CURRENT]
 
         if not is_limit:
             params.extend([
-                (61, "V", "Sweep Vmp", 1),
-                (62, "V", "Sweep Voc", 1),
-                (60, "W", "Sweep Pmax", 1)])
+                ModbusRegisterTable.VMP_LAST_SWEEP,
+                ModbusRegisterTable.VOC_LAST_SWEEP,
+                ModbusRegisterTable.POWER_LAST_SWEEP])
 
         return params
 
@@ -115,6 +122,9 @@ class SolarArrayStatus(ChargeControllerStatus):
 class TemperaturesStatus(ChargeControllerStatus):
     """
     Class to get data about temperatures sensors.
+
+    * heat sink temperature
+    * battery temperature
     """
 
     def __init__(self, mb):
@@ -145,11 +155,11 @@ class TemperaturesStatus(ChargeControllerStatus):
         True
         """
         params = [
-            (35, "C", "Heat Sink Temperature", 1)]
+            ModbusRegisterTable.HEATSINK_TEMP]
 
         if not is_limit:
             params.append(
-                (37, "C", "Battery Temperature", 1))
+                ModbusRegisterTable.BATTERY_TEMP)
 
         return params
 
@@ -157,6 +167,9 @@ class TemperaturesStatus(ChargeControllerStatus):
 class CountersStatus(ChargeControllerStatus):
     """
     Class to get data about resettable counters.
+
+    * amp hours
+    * kilowatt hours
     """
 
     def __init__(self, mb):
@@ -189,14 +202,11 @@ class CountersStatus(ChargeControllerStatus):
         True
         """
         return (
-            (52, "Ah", "Amp Hours", 2),
-            (56, "kWh", "Kilowatt Hours", 1))
+            ModbusRegisterTable.AH_CHARGE_RESETABLE,
+            ModbusRegisterTable.KWH_CHARGE_RESETABLE)
 
 if __name__ == "__main__":
     import doctest
-    from minimock import mock
-
-    dummy_charge_controller_status = mock("ChargeControllerStatus")
     doctest.testmod(verbose=True, extraglobs={
         "bat": BatteryStatus(None),
         "array": SolarArrayStatus(None),
