@@ -82,7 +82,7 @@ class SystemStatus(object):
         status_dict = {}
 
         for device in self._devices:
-            for status in device.get_status_all():
+            for status in device.get_status_all(is_limit):
                 label = status.pop("label")
                 status_dict[label] = status
 

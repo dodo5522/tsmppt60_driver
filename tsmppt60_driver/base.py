@@ -297,7 +297,7 @@ class ChargeControllerStatus(object):
                 "unit": "A"
             }
         """
-        return [self.get_status(*param) for param in self.get_params()]
+        return [self.get_status(*param) for param in self.get_params(is_limit)]
 
     def get_params(self, is_limit=True):
         """
