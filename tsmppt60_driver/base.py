@@ -92,19 +92,19 @@ class ManagementBase(object):
             ModbusRegisterTable.CURRENT_SCALING_HIGH[0],
             ModbusRegisterTable.CURRENT_SCALING_LOW[0]))
 
-    def _get(self, mbid, addr, reg, field=4):
+    def _get(self, addr, reg, mbid=_ID_MODBUS, field=4):
         """
         Get raw data against MBID, Address, Register, and Field.
 
-        :param mbid: MBID
         :param addr: Address to get information
         :param reg: Register to get information
+        :param mbid: MBID
         :param field: Field to get information
         :return: String like "1,4,1,1,1"
 
-        >>> mb._get(mbid=0x01, addr=0x0000, reg=1)
+        >>> mb._get(addr=0x0000, reg=1)
         '1,4,2,0,180'
-        >>> mb._get(mbid=0x01, addr=0x0001, reg=1)
+        >>> mb._get(addr=0x0001, reg=1)
         '1,4,2,0,0'
         """
         params = []
@@ -134,7 +134,7 @@ class ManagementBase(object):
         >>> mb.read_modbus(0x0001, 1)
         '0'
         """
-        raw_value_str = self._get(mbid, address, register)
+        raw_value_str = self._get(address, register, mbid)
         raw_values = [int(v) for v in raw_value_str.split(",")]
         idx_max = raw_values[2]
         idx_value = 3
