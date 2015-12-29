@@ -1,3 +1,7 @@
+# Status
+
+[![Build Status](https://travis-ci.org/dodo5522/tsmppt60_driver.svg)](https://travis-ci.org/dodo5522/tsmppt60_driver)
+
 # TS-MPPT-60 driver module
 
 This is python driver module to get the following status of TS-MPPT-60.

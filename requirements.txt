@@ -1,0 +1,2 @@
+MiniMock>=1.2.8
+requests>=2.8.0
