@@ -89,16 +89,45 @@ class TestManagementBase(unittest.TestCase):
         pass
 
     def test_compute_scaler_voltage(self):
-        v_hi = self._mb._get(addr=0x0000, reg=1)
-        v_lo = self._mb._get(addr=0x0001, reg=1)
-        print(v_hi)
-        print(v_lo)
+        key = _convert_to_url_params(ModbusRegisterTable.VOLTAGE_SCALING_HIGH)
+        elems = str(_modbus_dummy_scaling_table[key]).split(',')
+        high = int(elems[3]) << 8 | int(elems[4])
+        # "1,4,2,0,180"
+
+        key = _convert_to_url_params(ModbusRegisterTable.VOLTAGE_SCALING_LOW)
+        elems = str(_modbus_dummy_scaling_table[key]).split(',')
+        low = int(elems[3]) << 8 | int(elems[4])
+        # "1,4,2,0,10"
+
+        # V_PU lo must be shifted by 16 (divided by 2^16) and then added to V_PU hi
+        expected_value = high + low / pow(2, 16)
+
+        v_scaled = self._mb.compute_scaler(
+                ModbusRegisterTable.VOLTAGE_SCALING_HIGH[0],
+                ModbusRegisterTable.VOLTAGE_SCALING_LOW[0])
+
+        self.assertEqual(expected_value, v_scaled)
 
     def test_compute_scaler_current(self):
-        c_hi = self._mb._get(addr=0x0002, reg=1)
-        c_lo = self._mb._get(addr=0x0003, reg=1)
-        print(c_hi)
-        print(c_lo)
+        key = _convert_to_url_params(ModbusRegisterTable.CURRENT_SCALING_HIGH)
+        elems = str(_modbus_dummy_scaling_table[key]).split(',')
+        high = int(elems[3]) << 8 | int(elems[4])
+        # "1,4,2,0,180"
+
+        key = _convert_to_url_params(ModbusRegisterTable.CURRENT_SCALING_LOW)
+        elems = str(_modbus_dummy_scaling_table[key]).split(',')
+        low = int(elems[3]) << 8 | int(elems[4])
+        # "1,4,2,0,10"
+
+        # V_PU lo must be shifted by 16 (divided by 2^16) and then added to V_PU hi
+        expected_value = high + low / pow(2, 16)
+
+        i_scaled = self._mb.compute_scaler(
+            ModbusRegisterTable.CURRENT_SCALING_HIGH[0],
+            ModbusRegisterTable.CURRENT_SCALING_LOW[0])
+
+        self.assertEqual(expected_value, i_scaled)
+
 
 if __name__ == '__main__':
     unittest.main()
