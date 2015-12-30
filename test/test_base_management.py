@@ -15,10 +15,10 @@ def _convert_to_url_params(modbus_register):
 
 
 _modbus_dummy_scaling_table = {
-    _convert_to_url_params(ModbusRegisterTable.VOLTAGE_SCALING_HIGH): "1,4,2,0,180",
-    _convert_to_url_params(ModbusRegisterTable.VOLTAGE_SCALING_LOW): "1,4,2,0,10",
-    _convert_to_url_params(ModbusRegisterTable.CURRENT_SCALING_HIGH): "1,4,2,0,80",
-    _convert_to_url_params(ModbusRegisterTable.CURRENT_SCALING_LOW): "1,4,2,0,0"}
+    _convert_to_url_params(ModbusRegisterTable.VOLTAGE_SCALING_HIGH): "1,4,2,1,180",
+    _convert_to_url_params(ModbusRegisterTable.VOLTAGE_SCALING_LOW): "1,4,2,2,10",
+    _convert_to_url_params(ModbusRegisterTable.CURRENT_SCALING_HIGH): "1,4,2,3,80",
+    _convert_to_url_params(ModbusRegisterTable.CURRENT_SCALING_LOW): "1,4,2,4,20"}
 
 _modbus_dummy_response_table = {
     _convert_to_url_params(ModbusRegisterTable.BATTERY_VOLTAGE): {"raw_text": "1,4,2,16,25", "value": 22.64},
