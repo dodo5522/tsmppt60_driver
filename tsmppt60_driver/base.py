@@ -85,10 +85,10 @@ class ManagementBase(object):
 
         self._url = "http://" + host + "/" + cgi
 
-        self._vscale = float(self.compute_scaler(
+        self._vscale = float(self._compute_scaler(
             ModbusRegisterTable.VOLTAGE_SCALING_HIGH[0],
             ModbusRegisterTable.VOLTAGE_SCALING_LOW[0]))
-        self._iscale = float(self.compute_scaler(
+        self._iscale = float(self._compute_scaler(
             ModbusRegisterTable.CURRENT_SCALING_HIGH[0],
             ModbusRegisterTable.CURRENT_SCALING_LOW[0]))
 
@@ -103,7 +103,7 @@ class ManagementBase(object):
         :return: String like "1,4,1,1,1"
 
         >>> mb._get(addr=0x0000, reg=1)
-        '1,4,2,0,180'
+        '1,4,2,0,0'
         >>> mb._get(addr=0x0001, reg=1)
         '1,4,2,0,0'
         """
@@ -121,7 +121,7 @@ class ManagementBase(object):
 
         return res.text
 
-    def read_modbus(self, address, register, mbid=_ID_MODBUS):
+    def _read_modbus(self, address, register, mbid=_ID_MODBUS):
         """
         Read the value against MBID, Address, and Register.
 
@@ -129,9 +129,9 @@ class ManagementBase(object):
         :param reg: Register to get information
         :param mbid: MBID
         :return: String with short integer (ex. 16bit value).
-        >>> mb.read_modbus(0x0000, 1)
-        '180'
-        >>> mb.read_modbus(0x0001, 1)
+        >>> mb._read_modbus(0x0000, 1)
+        '0'
+        >>> mb._read_modbus(0x0001, 1)
         '0'
         """
         raw_value_str = self._get(address, register, mbid)
@@ -155,7 +155,7 @@ class ManagementBase(object):
 
         return ret_str
 
-    def compute_scaler(self, address_high, address_low):
+    def _compute_scaler(self, address_high, address_low):
         """
         Compute a voltage/current scaler as written on data sheet page 8 or 25.
         Vscaling = whole.fraction = [V_PU hi].[V_PU lo]
@@ -171,73 +171,30 @@ class ManagementBase(object):
         :param address_high: High address like V_PU Hi byte
         :param address_low: Low address like V_PU Hi byte
         :return: float value computed as scaler
-        >>> mb.compute_scaler(0, 1)
-        180.0
-        >>> mb.compute_scaler(2, 3)
-        80.0
+        >>> mb._compute_scaler(0, 1)
+        0.0
+        >>> mb._compute_scaler(2, 3)
+        0.0
         """
-        L = self.read_modbus(address_high, 1)
-        R = self.read_modbus(address_low, 1)
+        L = self._read_modbus(address_high, 1)
+        R = self._read_modbus(address_low, 1)
         return float(L) + (int(R) / 65536)
 
-    def get_vscale(self):
-        """
-        Get voltage scaled value.
-        :return: float value.
-        """
-        return self._vscale
-
-    def get_iscale(self):
-        """
-        Get current scaled value.
-        :return: float value.
-        """
-        return self._iscale
-
-
-class ChargeControllerStatus(object):
-    """
-    Abstract class to get data about charge controller status.
-    """
-
-    def __init__(self, mb, group, debug=False):
-        """
-        Initialize class object.
-
-        :param mb: instance of ManagementBase class.
-        :param group: string to indicate this instance name.
-        :param debug: If True, logging is enabled.
-        """
-        self._mb = mb
-        self._group = group
-
-        handler = logging.StreamHandler()
-        handler.setFormatter(logging.Formatter(
-            "%(asctime)s %(name)s %(levelname)s: %(message)s",
-            "%Y/%m/%d %p %l:%M:%S"))
-
-        self._logger = logging.getLogger(type(self).__name__)
-        self._logger.addHandler(handler)
-
-        if debug:
-            self._logger.setLevel(logging.DEBUG)
-
-    def __repr__(self):
-        return self._group
-
-    def __str__(self):
-        return self._group
-
-    def _get_scaled_value(self, address, scale_factor, register):
+    def get_scaled_value(self, address, scale_factor, register) -> float:
         """
         Calculate a status value got from TS-MPPT-60.
 
         :param address: address to get a value
         :param scale_factor: unit string
         :param register: register to get a value
-        :return: value as string
+        :return: scaled value against address
+
+        >>> mb.get_scaled_value(0x0026, 'V', 1)
+        0.0
+        >>> mb.get_scaled_value(0x0027, 'A', 1)
+        0.0
         """
-        raw_value_str = self._mb.read_modbus(address, register)
+        raw_value_str = self._read_modbus(address, register)
 
         if register > 1:
             values = raw_value_str.split("#")
@@ -252,82 +209,40 @@ class ChargeControllerStatus(object):
                 raw_value = -1 * (raw_value + 1)
 
         if scale_factor == "V":
-            return "{0:.2f}".format(
-                raw_value * self._mb.get_vscale() / 32768.0)
+            return raw_value * self._vscale / pow(2, 15)
         elif scale_factor == "A":
-            return "{0:.1f}".format(
-                raw_value * self._mb.get_iscale() / 32768.0)
+            return raw_value * self._iscale / pow(2, 15)
         elif scale_factor == "W":
-            wscale = self._mb.get_iscale() * self._mb.get_vscale()
-            return "{0:.0f}".format(
-                raw_value * wscale / 131072.0)
+            wscale = self._iscale * self._vscale
+            return raw_value * wscale / pow(2, 17)
         elif scale_factor == "Ah":
-            return "{0:.1f}".format(raw_value * 0.1)
+            return raw_value * 0.1
         elif scale_factor == "kWh" or scale_factor == "C":
-            return "{0:.0f}".format(raw_value)
+            return raw_value
         else:
-            return "{0:.2f}".format(raw_value)
+            return raw_value
 
-    def get_status(self, address, scale_factor, label, register):
-        """
-        Get a data against the specified address, register, etc.
-
-        :param address: address to get a value
-        :param scale_factor: unit string
-        :param label: label string of got value
-        :param register: register to get a value
-        :return: str of group, label as str, value as float, unit as str like
-            {
-                "group": "battery",
-                "label": "Battery Voltage",
-                "value": 12.1,
-                "unit": "V"
-            }
-        """
-        ret_values = {}
-        ret_values["group"] = self._group
-        ret_values["label"] = label
-        ret_values["value"] = float(self._get_scaled_value(
-            address, scale_factor, register))
-        ret_values["unit"] = scale_factor
-
-        return ret_values
-
-    def get_status_all(self, is_limit=True):
-        """
-        Get all data against the inherited class's paramter list.
-
-        :param is_limit: limit the number of getting status
-        :return: tuple of all got values and parameter like this.
-            { "group": "Battery",
-                "label": "Battery Voltage",
-                "value": 12.1,
-                "unit": "V"
-            },
-            {
-                "group": "Battery",
-                "label": "Charge Current",
-                "value": 8.4,
-                "unit": "A"
-            }
-        """
-        return [self.get_status(*param) for param in self.get_params(is_limit)]
-
-    def get_params(self, is_limit=True):
-        """
-        Get list of all params of the inherited class's group.
-
-        :param is_limit: limit the number of getting status
-        :return: tuple of parameter list like this.
-            ((61, "V", "Sweep Vmp", 1),
-             (62, "V", "Sweep Voc", 1),
-             (60, "W", "Sweep Pmax", 1))
-        """
-        raise NotImplementedError
 
 if __name__ == "__main__":
     import doctest
-    dummy_host = "192.168.1.20"
+    from minimock import Mock, restore
+
+    class DummyRequest:
+        pass
+
+    class DummyResponse:
+        pass
+
+    dummy_host = 'dummy.co.jp'
+
+    req = DummyRequest()
+    req.url = 'http://' + dummy_host + '/dummy.cgi'
+    res = DummyResponse()
+    res.request = req
+    res.text = "1,4,2,0,0"
+
+    requests.get = Mock('requests.get', returns=res)
+
     doctest.testmod(
             verbose=True,
             extraglobs={"mb": ManagementBase(host=dummy_host)})

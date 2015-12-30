@@ -4,7 +4,7 @@
 import tsmppt60_driver
 from tsmppt60_driver.base import ModbusRegisterTable
 import unittest
-from minimock import mock, Mock, restore
+from minimock import Mock, restore
 
 
 class DummyRequest:

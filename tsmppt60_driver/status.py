@@ -5,8 +5,99 @@
 TS-MPPT-60 driver's internal modules inherites base modules.
 """
 
-from tsmppt60_driver.base import ChargeControllerStatus
+import logging
 from tsmppt60_driver.base import ModbusRegisterTable
+
+
+class ChargeControllerStatus(object):
+    """
+    Abstract class to get data about charge controller status.
+    """
+
+    def __init__(self, mb, group, debug=False):
+        """
+        Initialize class object.
+
+        :param mb: instance of ManagementBase class.
+        :param group: string to indicate this instance name.
+        :param debug: If True, logging is enabled.
+        """
+        self._mb = mb
+        self._group = group
+
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter(
+                "%(asctime)s %(name)s %(levelname)s: %(message)s",
+                "%Y/%m/%d %p %l:%M:%S"))
+
+        self._logger = logging.getLogger(type(self).__name__)
+        self._logger.addHandler(handler)
+
+        if debug:
+            self._logger.setLevel(logging.DEBUG)
+
+    def __repr__(self):
+        return self._group
+
+    def __str__(self):
+        return self._group
+
+    def get_status(self, address, scale_factor, label, register):
+        """
+        Get a data against the specified address, register, etc.
+
+        :param address: address to get a value
+        :param scale_factor: unit string
+        :param label: label string of got value
+        :param register: register to get a value
+        :return: str of group, label as str, value as float, unit as str like
+            {
+                "group": "battery",
+                "label": "Battery Voltage",
+                "value": 12.1,
+                "unit": "V"
+            }
+        """
+        ret_values = {}
+        ret_values["group"] = self._group
+        ret_values["label"] = label
+        ret_values["value"] = self._mb.get_scaled_value(
+                address, scale_factor, register)
+        ret_values["unit"] = scale_factor
+
+        return ret_values
+
+    def get_status_all(self, is_limit=True):
+        """
+        Get all data against the inherited class's paramter list.
+
+        :param is_limit: limit the number of getting status
+        :return: tuple of all got values and parameter like this.
+            { "group": "Battery",
+                "label": "Battery Voltage",
+                "value": 12.1,
+                "unit": "V"
+            },
+            {
+                "group": "Battery",
+                "label": "Charge Current",
+                "value": 8.4,
+                "unit": "A"
+            }
+        """
+        return [self.get_status(*param) for param in self.get_params(is_limit)]
+
+    def get_params(self, is_limit=True):
+        """
+        Get list of all params of the inherited class's group.
+
+        :param is_limit: limit the number of getting status
+        :return: tuple of parameter list like this.
+            ((61, "V", "Sweep Vmp", 1),
+             (62, "V", "Sweep Voc", 1),
+             (60, "W", "Sweep Pmax", 1))
+        """
+        raise NotImplementedError
 
 
 class BatteryStatus(ChargeControllerStatus):
