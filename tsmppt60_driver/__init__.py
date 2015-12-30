@@ -62,7 +62,7 @@ class SystemStatus(object):
             TemperaturesStatus(_mb),
             CountersStatus(_mb))
 
-    def get(self, is_limit=True):
+    def get(self, is_limit=True) -> dict:
         """
         Get all status of devices.
 

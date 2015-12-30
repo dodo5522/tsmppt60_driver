@@ -92,7 +92,7 @@ class ManagementBase(object):
             ModbusRegisterTable.CURRENT_SCALING_HIGH[0],
             ModbusRegisterTable.CURRENT_SCALING_LOW[0]))
 
-    def _get(self, addr, reg, mbid=_ID_MODBUS, field=4):
+    def _get(self, addr, reg, mbid=_ID_MODBUS, field=4) -> str:
         """
         Get raw data against MBID, Address, Register, and Field.
 
@@ -121,7 +121,7 @@ class ManagementBase(object):
 
         return res.text
 
-    def _read_modbus(self, address, register, mbid=_ID_MODBUS):
+    def _read_modbus(self, address, register, mbid=_ID_MODBUS) -> str:
         """
         Read the value against MBID, Address, and Register.
 
@@ -155,7 +155,7 @@ class ManagementBase(object):
 
         return ret_str
 
-    def _compute_scaler(self, address_high, address_low):
+    def _compute_scaler(self, address_high, address_low) -> float:
         """
         Compute a voltage/current scaler as written on data sheet page 8 or 25.
         Vscaling = whole.fraction = [V_PU hi].[V_PU lo]

@@ -42,7 +42,7 @@ class ChargeControllerStatus(object):
     def __str__(self):
         return self._group
 
-    def get_status(self, address, scale_factor, label, register):
+    def get_status(self, address, scale_factor, label, register) -> dict:
         """
         Get a data against the specified address, register, etc.
 
@@ -67,7 +67,7 @@ class ChargeControllerStatus(object):
 
         return ret_values
 
-    def get_status_all(self, is_limit=True):
+    def get_status_all(self, is_limit=True) -> list:
         """
         Get all data against the inherited class's paramter list.
 
@@ -87,7 +87,7 @@ class ChargeControllerStatus(object):
         """
         return [self.get_status(*param) for param in self.get_params(is_limit)]
 
-    def get_params(self, is_limit=True):
+    def get_params(self, is_limit=True) -> tuple:
         """
         Get list of all params of the inherited class's group.
 
@@ -118,7 +118,7 @@ class BatteryStatus(ChargeControllerStatus):
         """
         ChargeControllerStatus.__init__(self, mb, "Battery")
 
-    def get_params(self, is_limit=True):
+    def get_params(self, is_limit=True) -> tuple:
         """
         Get a list of all params to get the battery status.
         The param is consisted by (address, scale_factor, label, register).
@@ -173,7 +173,7 @@ class SolarArrayStatus(ChargeControllerStatus):
         """
         ChargeControllerStatus.__init__(self, mb, "Array")
 
-    def get_params(self, is_limit=True):
+    def get_params(self, is_limit=True) -> tuple:
         """
         Get a list of all params to get the solar array status.
         The param is consisted by (address, scale_factor, label, register).
@@ -226,7 +226,7 @@ class TemperaturesStatus(ChargeControllerStatus):
         """
         ChargeControllerStatus.__init__(self, mb, "Temperature")
 
-    def get_params(self, is_limit=True):
+    def get_params(self, is_limit=True) -> tuple:
         """
         Get a list of all params to get the temperatures.
         The param is consisted by (address, scale_factor, label, register).
@@ -271,7 +271,7 @@ class CountersStatus(ChargeControllerStatus):
         """
         ChargeControllerStatus.__init__(self, mb, "Counter")
 
-    def get_params(self, is_limit=True):
+    def get_params(self, is_limit=True) -> tuple:
         """
         Get a list of all params to get the counters.
         The param is consisted by (address, scale_factor, label, register).
