@@ -85,10 +85,10 @@ class ManagementBase(object):
 
         self._url = "http://" + host + "/" + cgi
 
-        self.vscale = float(self.compute_scaler(
+        self._vscale = float(self.compute_scaler(
             ModbusRegisterTable.VOLTAGE_SCALING_HIGH[0],
             ModbusRegisterTable.VOLTAGE_SCALING_LOW[0]))
-        self.iscale = float(self.compute_scaler(
+        self._iscale = float(self.compute_scaler(
             ModbusRegisterTable.CURRENT_SCALING_HIGH[0],
             ModbusRegisterTable.CURRENT_SCALING_LOW[0]))
 
@@ -180,6 +180,20 @@ class ManagementBase(object):
         R = self.read_modbus(address_low, 1)
         return float(L) + (int(R) / 65536)
 
+    def get_vscale(self):
+        """
+        Get voltage scaled value.
+        :return: float value.
+        """
+        return self._vscale
+
+    def get_iscale(self):
+        """
+        Get current scaled value.
+        :return: float value.
+        """
+        return self._iscale
+
 
 class ChargeControllerStatus(object):
     """
@@ -239,12 +253,12 @@ class ChargeControllerStatus(object):
 
         if scale_factor == "V":
             return "{0:.2f}".format(
-                raw_value * self._mb.vscale / 32768.0)
+                raw_value * self._mb.get_vscale() / 32768.0)
         elif scale_factor == "A":
             return "{0:.1f}".format(
-                raw_value * self._mb.iscale / 32768.0)
+                raw_value * self._mb.get_iscale() / 32768.0)
         elif scale_factor == "W":
-            wscale = self._mb.iscale * self._mb.vscale
+            wscale = self._mb.get_iscale() * self._mb.get_vscale()
             return "{0:.0f}".format(
                 raw_value * wscale / 131072.0)
         elif scale_factor == "Ah":
