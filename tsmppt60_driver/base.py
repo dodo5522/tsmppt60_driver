@@ -137,21 +137,20 @@ class ManagementBase(object):
         raw_value_str = self._get(address, register, mbid)
         raw_values = [int(v) for v in raw_value_str.split(",")]
         idx_max = raw_values[2]
-        idx_value = 3
+        raw_values = raw_values[3:]
+        idx = 0
         ret_str = ""
 
-        self._logger.debug(raw_value_str)
+        while idx < idx_max:
+            ret_short = (raw_values[idx] * 256)
+            idx += 1
+            ret_short += raw_values[idx]
+            idx += 1
 
-        while idx_value < idx_max + 2:
-            ret_short = (raw_values[idx_value] * 256)
-            idx_value += 1
-            ret_short += raw_values[idx_value]
-            idx_value += 1
+            ret_str += str(ret_short)
 
-            if idx_value < idx_max + 2:
-                ret_str += str(ret_short) + "#"
-            else:
-                ret_str += str(ret_short)
+            if idx < idx_max:
+                ret_str += "#"
 
         return ret_str
 
@@ -178,7 +177,7 @@ class ManagementBase(object):
         """
         L = self._read_modbus(address_high, 1)
         R = self._read_modbus(address_low, 1)
-        return float(L) + (int(R) / 65536)
+        return float(L) + (float(R) / pow(2, 16))
 
     def get_scaled_value(self, address, scale_factor, register) -> float:
         """
@@ -216,7 +215,7 @@ class ManagementBase(object):
             wscale = self._iscale * self._vscale
             return raw_value * wscale / pow(2, 17)
         elif scale_factor == "Ah":
-            return raw_value * 0.1
+            return raw_value / 10
         elif scale_factor == "kWh" or scale_factor == "C":
             return raw_value
         else:
