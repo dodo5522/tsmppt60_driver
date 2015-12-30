@@ -96,7 +96,7 @@ class TestMb(unittest.TestCase):
         # V_PU lo must be shifted by 16 (divided by 2^16) and then added to V_PU hi
         expected_value = high + low / pow(2, 16)
 
-        v_scaled = self._mb.compute_scaler(
+        v_scaled = self._mb._compute_scaler(
                 ModbusRegisterTable.VOLTAGE_SCALING_HIGH[0],
                 ModbusRegisterTable.VOLTAGE_SCALING_LOW[0])
 
@@ -116,7 +116,7 @@ class TestMb(unittest.TestCase):
         # V_PU lo must be shifted by 16 (divided by 2^16) and then added to V_PU hi
         expected_value = high + low / pow(2, 16)
 
-        i_scaled = self._mb.compute_scaler(
+        i_scaled = self._mb._compute_scaler(
             ModbusRegisterTable.CURRENT_SCALING_HIGH[0],
             ModbusRegisterTable.CURRENT_SCALING_LOW[0])
 
