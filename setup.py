@@ -22,7 +22,7 @@ def requirements():
 
 setup(
     name="tsmppt60-driver",
-    version="0.1.0",
+    version="0.1.1",
     description="Python module to get status of your solar charge controller TS-MPPT-60.",
     long_description=readme(),
     license="GPLv2",
