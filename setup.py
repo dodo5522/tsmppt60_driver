@@ -13,10 +13,11 @@ def readme():
     except:
         return ""
 
+
 setup(
     name="tsmppt60-driver",
-    version="0.0.7",
-    description="To get status of your solar charge controller TS-MPPT-60.",
+    version="0.1.0",
+    description="Python module to get status of your solar charge controller TS-MPPT-60.",
     long_description=readme(),
     license="GPLv2",
     author="Takashi Ando",
