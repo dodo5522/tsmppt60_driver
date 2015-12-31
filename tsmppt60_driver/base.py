@@ -92,7 +92,7 @@ class ManagementBase(object):
             ModbusRegisterTable.CURRENT_SCALING_HIGH[0],
             ModbusRegisterTable.CURRENT_SCALING_LOW[0]))
 
-    def _get(self, addr, reg, mbid=_ID_MODBUS, field=4) -> str:
+    def _get(self, addr, reg, mbid=_ID_MODBUS, field=4):
         """
         Get raw data against MBID, Address, Register, and Field.
 
@@ -121,7 +121,7 @@ class ManagementBase(object):
 
         return res.text
 
-    def _read_modbus(self, address, register, mbid=_ID_MODBUS) -> str:
+    def _read_modbus(self, address, register, mbid=_ID_MODBUS):
         """
         Read the value against MBID, Address, and Register.
 
@@ -154,7 +154,7 @@ class ManagementBase(object):
 
         return ret_str
 
-    def _compute_scaler(self, address_high, address_low) -> float:
+    def _compute_scaler(self, address_high, address_low):
         """
         Compute a voltage/current scaler as written on data sheet page 8 or 25.
         Vscaling = whole.fraction = [V_PU hi].[V_PU lo]
@@ -179,7 +179,7 @@ class ManagementBase(object):
         R = self._read_modbus(address_low, 1)
         return float(L) + (float(R) / pow(2, 16))
 
-    def get_scaled_value(self, address, scale_factor, register) -> float:
+    def get_scaled_value(self, address, scale_factor, register):
         """
         Calculate a status value got from TS-MPPT-60.
 
