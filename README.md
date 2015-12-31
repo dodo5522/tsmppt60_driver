@@ -53,7 +53,7 @@ The result is like following.
 The above data is limited information. You can disable the limitter by setting False to the second argument as SystemStatus() class.
 
 ```python
-    print(SystemStatus("192.168.1.20", False).get())
+    print(SystemStatus("192.168.1.20").get(False))
 ```
 
 The result is like following.
