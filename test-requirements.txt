@@ -1,0 +1,3 @@
+MiniMock>=1.2.8
+nose
+coverage

@@ -14,6 +14,12 @@ def readme():
         return ""
 
 
+def requirements():
+    with open("requirements.txt", 'r') as fp:
+        requires = [package.strip() for package in fp.readlines()]
+    return requires
+
+
 setup(
     name="tsmppt60-driver",
     version="0.1.0",
@@ -23,7 +29,6 @@ setup(
     author="Takashi Ando",
     author_email="takashi7ando@gmail.com",
     url="https://github.com/dodo5522/tsmppt60_driver",
-    install_requires=[
-        "requests>=2.6.0"],
+    install_requires=requirements(),
     packages=[
         "tsmppt60_driver"])
