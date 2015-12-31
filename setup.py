@@ -15,9 +15,7 @@ def readme():
 
 
 def requirements():
-    with open("requirements.txt", 'r') as fp:
-        requires = [package.strip() for package in fp.readlines()]
-    return requires
+    return [pkg.strip() for pkg in open('requirements.txt').readlines()]
 
 
 setup(
