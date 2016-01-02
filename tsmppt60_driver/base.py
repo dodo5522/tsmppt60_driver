@@ -117,7 +117,6 @@ class ManagementBase(object):
 
         res = requests.get(
             "{0}?{1}".format(self._url, "&".join(params)), timeout=(5, 15))
-        self._logger.debug("{0}".format(res.request.url))
 
         return res.text
 

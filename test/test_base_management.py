@@ -70,7 +70,7 @@ class TestMb(unittest.TestCase):
                 "tsmppt60_driver.base.requests.get",
                 returns_func=dummy_requests_get)
 
-        cls._mb = tsmppt60_driver.base.ManagementBase("192.168.2.1")
+        cls._mb = tsmppt60_driver.base.ManagementBase('dummy.co.jp')
 
     @classmethod
     def tearDownClass(cls):
