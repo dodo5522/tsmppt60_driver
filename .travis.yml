@@ -22,3 +22,6 @@ before_script:
 script:
   - nosetests
   - nosetests --with-coverage --cover-package=tsmppt60_driver
+  - coverage run --source=yourpackagename setup.py test
+after_success:
+  coveralls

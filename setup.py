@@ -2,6 +2,7 @@
 # -*- coding:utf-8 -*-
 
 import os
+import sys
 from setuptools import setup
 
 
@@ -29,4 +30,5 @@ setup(
     url="https://github.com/dodo5522/tsmppt60_driver",
     install_requires=requirements(),
     packages=[
-        "tsmppt60_driver"])
+        "tsmppt60_driver"],
+    test_suite='nose.collector')
