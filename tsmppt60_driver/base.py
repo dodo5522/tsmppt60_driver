@@ -1,24 +1,25 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-"""
-TS-MPPT-60 driver's base modules.
-"""
+"""TS-MPPT-60 driver's base modules."""
+
+import logging
 
 import requests
-import logging
 
 
 class Logger(object):
+    """Logger base class for this module."""
+
     _FORMAT_LOG_MSG = "%(asctime)s %(name)s %(levelname)s: %(message)s"
     _FORMAT_LOG_DATE = "%Y/%m/%d %p %l:%M:%S"
 
     def __init__(self, log_file_path=None, debug=False):
-        """
-        Initialize Logger class object.
+        """Initialize Logger class object.
 
-        :param log_file_path: Path to record log file.
-        :param debug: If True, logging is enabled.
+        Keyword arguments:
+        log_file_path -- Path to record log file.
+        debug -- If True, logging is enabled.
         """
         self.logger = logging.getLogger(type(self).__name__)
 
@@ -39,7 +40,9 @@ class Logger(object):
             self.logger.setLevel(logging.INFO)
 
 
-class ModbusRegisterTable:
+class ModbusRegisterTable(object):
+    """MODBUS register settings table."""
+
     VOLTAGE_SCALING_HIGH = (0x0000, "", "Voltage Scaling High", 1)
     VOLTAGE_SCALING_LOW = (0x0001, "", "Voltage Scaling Low", 1)
     CURRENT_SCALING_HIGH = (0x0002, "", "Current Scaling High", 1)
@@ -62,20 +65,23 @@ class ModbusRegisterTable:
 
 
 class ManagementBase(object):
+    """Class to get raw data from TS-MPPT-60. MODBUS ID is fixed to 1 as written on data sheet TSMPPT.APP_.Modbus.EN_.10.2.pdf.
+
+    Keyword arguments:
+    host -- host name like dummy.co.jp
+    cgi -- cgi script file name
+    debug -- debug message output is enabled if True
     """
-    @brief Class to get raw data from TS-MPPT-60.
-    @detail MODBUS ID is fixed to 1 as written on data sheet
-            TSMPPT.APP_.Modbus.EN_.10.2.pdf.
-    """
+
     _ID_MODBUS = 0x01
 
     def __init__(self, host, cgi="MBCSV.cgi", debug=False):
-        """
-        Initialize class object.
+        """Initialize class object.
 
-        :param host: Host address like "192.168.1.20" of TS-MPPT-60 live view
-        :param cgi: CGI file name to get the information
-        :param debug: If True, logging is enabled.
+        Keyword arguments:
+        host -- Host address like "192.168.1.20" of TS-MPPT-60 live view
+        cgi -- CGI file name to get the information
+        debug -- If True, logging is enabled.
         """
         self._logger = logging.getLogger(type(self).__name__)
         self._logger.addHandler(logging.StreamHandler())
@@ -93,14 +99,13 @@ class ManagementBase(object):
             ModbusRegisterTable.CURRENT_SCALING_LOW[0]))
 
     def _get(self, addr, reg, mbid=_ID_MODBUS, field=4):
-        """
-        Get raw data against MBID, Address, Register, and Field.
+        """Get and return raw data string like "1,4,1,1,1" against MBID, Address, Register, and Field.
 
-        :param addr: Address to get information
-        :param reg: Register to get information
-        :param mbid: MBID
-        :param field: Field to get information
-        :return: String like "1,4,1,1,1"
+        Keyword arguments:
+        addr -- Address to get information
+        reg -- Register to get information
+        mbid -- MBID
+        field -- Field to get information
 
         >>> mb._get(addr=0x0000, reg=1)
         '1,4,2,0,0'
@@ -121,13 +126,13 @@ class ManagementBase(object):
         return res.text
 
     def _read_modbus(self, address, register, mbid=_ID_MODBUS):
-        """
-        Read the value against MBID, Address, and Register.
+        """Read and return the value string with short integer (ex. 16bit value) against MBID, Address, and Register.
 
-        :param addr: Address to get information
-        :param reg: Register to get information
-        :param mbid: MBID
-        :return: String with short integer (ex. 16bit value).
+        Keyword arguments:
+        address -- Address to get information
+        register -- Register to get information
+        mbid -- MBID
+
         >>> mb._read_modbus(0x0000, 1)
         '0'
         >>> mb._read_modbus(0x0001, 1)
@@ -154,8 +159,8 @@ class ManagementBase(object):
         return ret_str
 
     def _compute_scaler(self, address_high, address_low):
-        """
-        Compute a voltage/current scaler as written on data sheet page 8 or 25.
+        """Compute and return the voltage/current scaler as written on data sheet page 8 or 25.
+
         Vscaling = whole.fraction = [V_PU hi].[V_PU lo]
 
         Example:
@@ -166,9 +171,9 @@ class ManagementBase(object):
         V_PU lo must be shifted by 16 (divided by 2^16)
         and then added to V_PU hi Vscaling = 78 + 934/65536 = 78.01425
 
-        :param address_high: High address like V_PU Hi byte
-        :param address_low: Low address like V_PU Hi byte
-        :return: float value computed as scaler
+        Keyword arguments:
+        address_high -- High address like V_PU Hi byte
+        address_low -- Low address like V_PU Hi byte
         >>> mb._compute_scaler(0, 1)
         0.0
         >>> mb._compute_scaler(2, 3)
@@ -179,13 +184,12 @@ class ManagementBase(object):
         return float(L) + (float(R) / pow(2, 16))
 
     def get_scaled_value(self, address, scale_factor, register):
-        """
-        Calculate a status value got from TS-MPPT-60.
+        """Calculate and return a scaled status value against address got from TS-MPPT-60.
 
-        :param address: address to get a value
-        :param scale_factor: unit string
-        :param register: register to get a value
-        :return: scaled value against address
+        Keyword arguments:
+        address -- address to get a value
+        scale_factor -- unit string
+        register -- register to get a value
 
         >>> mb.get_scaled_value(0x0026, 'V', 1)
         0.0
@@ -223,12 +227,17 @@ class ManagementBase(object):
 
 if __name__ == "__main__":
     import doctest
-    from minimock import Mock, restore
+    from minimock import Mock
+    from minimock import restore
 
-    class DummyRequest:
+    class DummyRequest(object):
+        """Dummy response class against requests.Response."""
+
         pass
 
-    class DummyResponse:
+    class DummyResponse(object):
+        """Dummy response class against requests.Response."""
+
         pass
 
     dummy_host = 'dummy.co.jp'

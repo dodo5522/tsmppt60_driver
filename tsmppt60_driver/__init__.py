@@ -1,21 +1,17 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-"""
-TS-MPPT-60 driver library to get all devices status data.
-"""
+"""TS-MPPT-60 driver library to get all devices status data."""
 
 from tsmppt60_driver.base import ManagementBase
 from tsmppt60_driver.status import BatteryStatus
+from tsmppt60_driver.status import CountersStatus
 from tsmppt60_driver.status import SolarArrayStatus
 from tsmppt60_driver.status import TemperaturesStatus
-from tsmppt60_driver.status import CountersStatus
 
 
 class SystemStatus(object):
-    """
-    This is class to get the system status of TS-MPPT-60.
-    Use this like below.
+    """This is class to get the system status of TS-MPPT-60. Use this like below.
 
         print(SystemStatus("192.168.1.20").get())
 
@@ -49,10 +45,10 @@ class SystemStatus(object):
     """
 
     def __init__(self, host):
-        """
-        Initialize class object.
+        """Initialize class object.
 
-        :param host: host address like "192.168.1.20"
+        Keyword arguments:
+        host -- TS-MPPT-60 host address like "192.168.1.20"
         """
         _mb = ManagementBase(host)
 
@@ -63,11 +59,8 @@ class SystemStatus(object):
             CountersStatus(_mb))
 
     def get(self, is_limit=True):
-        """
-        Get all status of devices.
+        """Get and return all status of devices like the below dict.
 
-        :param is_limit: limit the number of getting status
-        :return: like below dictionary object.
             {
                 "Battery Voltage":{
                     "group": "Battery",
@@ -78,6 +71,9 @@ class SystemStatus(object):
                     "value": 8.4,
                     "unit": "A"}
             }
+
+        Keyword arguments:
+        is_limit -- limit the number of getting status
         """
         status_dict = {}
 

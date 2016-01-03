@@ -1,33 +1,31 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
+import unittest
+from minimock import Mock
+from minimock import restore
 import tsmppt60_driver
 from tsmppt60_driver.base import ModbusRegisterTable
-import unittest
-from minimock import Mock, restore
 
 
 class DummyRequest:
-    """
-    Dummy request class against requests.Reguest.
-    """
+    """Dummy request class against requests.Reguest."""
+
     def __init__(self, _url):
         self.url = _url
 
 
 class DummyResponse:
-    """
-    Dummy response class against requests.Response.
-    """
+    """Dummy response class against requests.Response."""
+
     def __init__(self, _url, _text):
         self.request = DummyRequest(_url)
         self.text = _text
 
 
 class TestMb(unittest.TestCase):
-    """
-    Test case for ManagementBase.
-    """
+    """Test case for ManagementBase."""
+
     @classmethod
     def _to_url_params(cls, modbus_register):
         addr = int(modbus_register[0])

@@ -1,26 +1,23 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-"""
-TS-MPPT-60 driver's internal modules inherites base modules.
-"""
+"""TS-MPPT-60 driver's internal modules inherites base modules."""
 
 import logging
+
 from tsmppt60_driver.base import ModbusRegisterTable
 
 
 class ChargeControllerStatus(object):
-    """
-    Abstract class to get data about charge controller status.
-    """
+    """Abstract class to get data about charge controller status."""
 
     def __init__(self, mb, group, debug=False):
-        """
-        Initialize class object.
+        """Initialize class object.
 
-        :param mb: instance of ManagementBase class.
-        :param group: string to indicate this instance name.
-        :param debug: If True, logging is enabled.
+        Keyword arguments:
+        mb -- instance of ManagementBase class.
+        group -- string to indicate this instance name.
+        debug -- If True, logging is enabled.
         """
         self._mb = mb
         self._group = group
@@ -44,19 +41,20 @@ class ChargeControllerStatus(object):
 
     def get_status(self, address, scale_factor, label, register):
         """
-        Get a data against the specified address, register, etc.
+        Get and return a data against the specified address, register, etc. like below.
 
-        :param address: address to get a value
-        :param scale_factor: unit string
-        :param label: label string of got value
-        :param register: register to get a value
-        :return: str of group, label as str, value as float, unit as str like
             {
                 "group": "battery",
                 "label": "Battery Voltage",
                 "value": 12.1,
                 "unit": "V"
             }
+
+        Keyword arguments:
+        address -- address to get a value
+        scale_factor -- unit string
+        label -- label string of got value
+        register -- register to get a value
         """
         ret_values = {}
         ret_values["group"] = self._group
@@ -69,10 +67,8 @@ class ChargeControllerStatus(object):
 
     def get_status_all(self, is_limit=True):
         """
-        Get all data against the inherited class's paramter list.
+        Get and return all data against the inherited class's paramter list.
 
-        :param is_limit: limit the number of getting status
-        :return: tuple of all got values and parameter like this.
             { "group": "Battery",
                 "label": "Battery Voltage",
                 "value": 12.1,
@@ -84,15 +80,17 @@ class ChargeControllerStatus(object):
                 "value": 8.4,
                 "unit": "A"
             }
+
+        Keyword arguments:
+        is_limit -- limit the number of getting status
         """
         return [self.get_status(*param) for param in self.get_params(is_limit)]
 
     def get_params(self, is_limit=True):
-        """
-        Get list of all params of the inherited class's group.
+        """Get and return a list of all params of the inherited class's group.
 
-        :param is_limit: limit the number of getting status
-        :return: tuple of parameter list like this.
+        Keyword arguments:
+        is_limit -- limit the number of getting status
             ((61, "V", "Sweep Vmp", 1),
              (62, "V", "Sweep Voc", 1),
              (60, "W", "Sweep Pmax", 1))
@@ -111,20 +109,18 @@ class BatteryStatus(ChargeControllerStatus):
     """
 
     def __init__(self, mb):
-        """
-        Initialize BatteryStatus class object.
+        """Initialize BatteryStatus class object.
 
-        :param mb: instance of ManagementBase class
+        Keyword arguments:
+        mb -- instance of ManagementBase class
         """
         ChargeControllerStatus.__init__(self, mb, "Battery")
 
     def get_params(self, is_limit=True):
-        """
-        Get a list of all params to get the battery status.
-        The param is consisted by (address, scale_factor, label, register).
+        """Get and return a list of all params to get the battery status. The param is consisted by (address, scale_factor, label, register).
 
-        :param is_limit: limit the number of getting status
-        :return: Parameter list to get battery status.
+        Keyword arguments:
+        is_limit -- limit the number of getting status
 
         >>> bat.get_params() == [
         ...     (38, 'V', 'Battery Voltage', 1),
@@ -155,8 +151,7 @@ class BatteryStatus(ChargeControllerStatus):
 
 
 class SolarArrayStatus(ChargeControllerStatus):
-    """
-    Class to get data about solar array.
+    """Class to get data about solar array.
 
     * array voltage
     * array current
@@ -166,20 +161,18 @@ class SolarArrayStatus(ChargeControllerStatus):
     """
 
     def __init__(self, mb):
-        """
-        Initialize SolarArrayStatus class object.
+        """Initialize SolarArrayStatus class object.
 
-        :param mb: instance of ManagementBase class
+        Keyword arguments:
+        mb -- instance of ManagementBase class
         """
         ChargeControllerStatus.__init__(self, mb, "Array")
 
     def get_params(self, is_limit=True):
-        """
-        Get a list of all params to get the solar array status.
-        The param is consisted by (address, scale_factor, label, register).
+        """Get and return a list of all params to get the solar array status. The param is consisted by (address, scale_factor, label, register).
 
-        :param is_limit: limit the number of getting status
-        :return: Parameter list to get solar array status.
+        Keyword arguments:
+        is_limit -- limit the number of getting status
 
         >>> array.get_params() == [
         ...    (27, 'V', 'Array Voltage', 1),
@@ -211,28 +204,25 @@ class SolarArrayStatus(ChargeControllerStatus):
 
 
 class TemperaturesStatus(ChargeControllerStatus):
-    """
-    Class to get data about temperatures sensors.
+    """Class to get data about temperatures sensors.
 
     * heat sink temperature
     * battery temperature
     """
 
     def __init__(self, mb):
-        """
-        Initialize SolarArrayStatus class object.
+        """Initialize SolarArrayStatus class object.
 
-        :param mb: instance of ManagementBase class
+        Keyword arguments:
+        mb -- instance of ManagementBase class
         """
         ChargeControllerStatus.__init__(self, mb, "Temperature")
 
     def get_params(self, is_limit=True):
-        """
-        Get a list of all params to get the temperatures.
-        The param is consisted by (address, scale_factor, label, register).
+        """Get and return a list of all params to get the temperatures. The param is consisted by (address, scale_factor, label, register).
 
-        :param is_limit: limit the number of getting status
-        :return: Parameter list to get temperature status.
+        Keyword arguments:
+        is_limit -- limit the number of getting status
 
         >>> temp.get_params() == [
         ...    (35, 'C', 'Heat Sink Temperature', 1)]
@@ -267,17 +257,16 @@ class CountersStatus(ChargeControllerStatus):
         """
         Initialize CountersStaus class object.
 
-        :param mb: instance of ManagementBase class
+        Keyword arguments:
+        mb -- instance of ManagementBase class
         """
         ChargeControllerStatus.__init__(self, mb, "Counter")
 
     def get_params(self, is_limit=True):
-        """
-        Get a list of all params to get the counters.
-        The param is consisted by (address, scale_factor, label, register).
+        """Get and return a list of all params to get the counters. The param is consisted by (address, scale_factor, label, register).
 
-        :param is_limit: limit the number of getting status
-        :return: Parameter list to get counter status.
+        Keyword arguments:
+        is_limit -- limit the number of getting status
 
         >>> count.get_params() == (
         ...    (52, 'Ah', 'Amp Hours', 2),
