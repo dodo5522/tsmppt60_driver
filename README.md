@@ -1,6 +1,6 @@
 # Status
 
-[![Build Status](https://travis-ci.org/dodo5522/tsmppt60_driver.svg)](https://travis-ci.org/dodo5522/tsmppt60_driver)
+[![Build Status](https://travis-ci.org/dodo5522/tsmppt60_driver.svg)](https://travis-ci.org/dodo5522/tsmppt60_driver) [![Coverage Status](https://coveralls.io/repos/dodo5522/tsmppt60_driver/badge.svg?branch=master&service=github)](https://coveralls.io/github/dodo5522/tsmppt60_driver?branch=master)
 
 # TS-MPPT-60 driver module
 
