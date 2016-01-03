@@ -20,5 +20,6 @@ install:
 before_script:
   - flake8 --ignore=E501,W601,D203,D105 tsmppt60_driver
 script:
-  - nosetests
-  - nosetests --with-coverage --cover-package=tsmppt60_driver
+  - coverage run --source=tsmppt60_driver setup.py test
+after_success:
+  - coveralls
