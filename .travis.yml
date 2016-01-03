@@ -18,7 +18,7 @@ install:
   - pip install -r requirements.txt -r test-requirements.txt
 # command to run tests
 before_script:
-  - flake8 --ignore=E501,W601 tsmppt60_driver
+  - flake8 --ignore=E501,W601,D203,D105 tsmppt60_driver
 script:
   - nosetests
   - nosetests --with-coverage --cover-package=tsmppt60_driver
