@@ -67,8 +67,8 @@ class TestMb(unittest.TestCase):
             cls._to_url_params(ModbusRegisterTable.KWH_CHARGE_RESETABLE): {"raw_text": "1,4,2,1,4", "value": 260.0}}
 
         tsmppt60_driver.base.requests.get = Mock(
-                "tsmppt60_driver.base.requests.get",
-                returns_func=dummy_requests_get)
+            "tsmppt60_driver.base.requests.get",
+            returns_func=dummy_requests_get)
 
         cls._mb = tsmppt60_driver.base.ManagementBase('dummy.co.jp')
 
@@ -97,8 +97,8 @@ class TestMb(unittest.TestCase):
         expected_value = float(high) + float(low) / pow(2, 16)
 
         v_scaled = self._mb._compute_scaler(
-                ModbusRegisterTable.VOLTAGE_SCALING_HIGH[0],
-                ModbusRegisterTable.VOLTAGE_SCALING_LOW[0])
+            ModbusRegisterTable.VOLTAGE_SCALING_HIGH[0],
+            ModbusRegisterTable.VOLTAGE_SCALING_LOW[0])
 
         self.assertEqual(expected_value, v_scaled)
 

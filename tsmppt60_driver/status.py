@@ -27,8 +27,8 @@ class ChargeControllerStatus(object):
 
         handler = logging.StreamHandler()
         handler.setFormatter(logging.Formatter(
-                "%(asctime)s %(name)s %(levelname)s: %(message)s",
-                "%Y/%m/%d %p %l:%M:%S"))
+            "%(asctime)s %(name)s %(levelname)s: %(message)s",
+            "%Y/%m/%d %p %l:%M:%S"))
 
         self._logger = logging.getLogger(type(self).__name__)
         self._logger.addHandler(handler)
@@ -62,7 +62,7 @@ class ChargeControllerStatus(object):
         ret_values["group"] = self._group
         ret_values["label"] = label
         ret_values["value"] = self._mb.get_scaled_value(
-                address, scale_factor, register)
+            address, scale_factor, register)
         ret_values["unit"] = scale_factor
 
         return ret_values

@@ -40,25 +40,25 @@ class Logger(object):
 
 
 class ModbusRegisterTable:
-    VOLTAGE_SCALING_HIGH      = (0x0000, "", "Voltage Scaling High", 1)
-    VOLTAGE_SCALING_LOW       = (0x0001, "", "Voltage Scaling Low", 1)
-    CURRENT_SCALING_HIGH      = (0x0002, "", "Current Scaling High", 1)
-    CURRENT_SCALING_LOW       = (0x0003, "", "Current Scaling Low", 1)
-    SOFTWARE_VERSION          = (0x0004, "", "Software Version", 1)
+    VOLTAGE_SCALING_HIGH = (0x0000, "", "Voltage Scaling High", 1)
+    VOLTAGE_SCALING_LOW = (0x0001, "", "Voltage Scaling Low", 1)
+    CURRENT_SCALING_HIGH = (0x0002, "", "Current Scaling High", 1)
+    CURRENT_SCALING_LOW = (0x0003, "", "Current Scaling Low", 1)
+    SOFTWARE_VERSION = (0x0004, "", "Software Version", 1)
 
-    BATTERY_VOLTAGE           = (0x0026, "V", "Battery Voltage", 1)
-    CHARGING_CURRENT          = (0x0027, "A", "Charge Current", 1)
+    BATTERY_VOLTAGE = (0x0026, "V", "Battery Voltage", 1)
+    CHARGING_CURRENT = (0x0027, "A", "Charge Current", 1)
     TARGET_REGULATION_VOLTAGE = (0x0033, "V", "Target Voltage", 1)
-    OUTPUT_POWER              = (0x003a, "W", "Output Power", 1)
-    ARRAY_VOLTAGE             = (0x001b, "V", "Array Voltage", 1)
-    ARRAY_CURRENT             = (0x001d, "A", "Array Current", 1)
-    VMP_LAST_SWEEP            = (0x003d, "V", "Sweep Vmp", 1)
-    VOC_LAST_SWEEP            = (0x003e, "V", "Sweep Voc", 1)
-    POWER_LAST_SWEEP          = (0x003c, "W", "Sweep Pmax", 1)
-    HEATSINK_TEMP             = (0x0023, "C", "Heat Sink Temperature", 1)
-    BATTERY_TEMP              = (0x0025, "C", "Battery Temperature", 1)
-    AH_CHARGE_RESETABLE       = (0x0034, "Ah", "Amp Hours", 2)
-    KWH_CHARGE_RESETABLE      = (0x0038, "kWh", "Kilowatt Hours", 1)
+    OUTPUT_POWER = (0x003a, "W", "Output Power", 1)
+    ARRAY_VOLTAGE = (0x001b, "V", "Array Voltage", 1)
+    ARRAY_CURRENT = (0x001d, "A", "Array Current", 1)
+    VMP_LAST_SWEEP = (0x003d, "V", "Sweep Vmp", 1)
+    VOC_LAST_SWEEP = (0x003e, "V", "Sweep Voc", 1)
+    POWER_LAST_SWEEP = (0x003c, "W", "Sweep Pmax", 1)
+    HEATSINK_TEMP = (0x0023, "C", "Heat Sink Temperature", 1)
+    BATTERY_TEMP = (0x0025, "C", "Battery Temperature", 1)
+    AH_CHARGE_RESETABLE = (0x0034, "Ah", "Amp Hours", 2)
+    KWH_CHARGE_RESETABLE = (0x0038, "kWh", "Kilowatt Hours", 1)
 
 
 class ManagementBase(object):
@@ -242,5 +242,7 @@ if __name__ == "__main__":
     requests.get = Mock('requests.get', returns=res)
 
     doctest.testmod(
-            verbose=True,
-            extraglobs={"mb": ManagementBase(host=dummy_host)})
+        verbose=True,
+        extraglobs={"mb": ManagementBase(host=dummy_host)})
+
+    restore()
