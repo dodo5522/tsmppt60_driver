@@ -2,20 +2,16 @@
 # -*- coding:utf-8 -*-
 
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 def readme():
     try:
-        os.system("pandoc --from=markdown --to=rst README.md -o README.rst")
-        with open("README.rst", "r") as f:
-            return f.read()
+        _r = os.path.join(os.path.dirname(__file__), 'README.rst')
+        with open(_r, 'r') as _f:
+            return _f.read()
     except:
         return ""
-
-
-def requirements():
-    return [pkg.strip() for pkg in open('requirements.txt').readlines()]
 
 
 setup(
@@ -27,7 +23,17 @@ setup(
     author="Takashi Ando",
     author_email="takashi7ando@gmail.com",
     url="https://github.com/dodo5522/tsmppt60_driver",
-    install_requires=requirements(),
+    install_requires=find_packages(),
     packages=[
         "tsmppt60_driver"],
-    test_suite='nose.collector')
+    test_suite='nose.collector',
+    calssifiers=[
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+    ]
+)
