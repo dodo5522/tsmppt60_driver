@@ -23,9 +23,10 @@ setup(
     author="Takashi Ando",
     author_email="takashi7ando@gmail.com",
     url="https://github.com/dodo5522/tsmppt60_driver",
-    install_requires=find_packages(),
-    packages=[
-        "tsmppt60_driver"],
+    install_requires=[
+        'requests>=2.8.0',
+    ],
+    packages=find_packages(),
     test_suite='nose.collector',
     calssifiers=[
         'Programming Language :: Python',
