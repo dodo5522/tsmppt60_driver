@@ -1,4 +1,4 @@
-MiniMock>=1.2.8
+mock
 nose
 coverage
 coveralls

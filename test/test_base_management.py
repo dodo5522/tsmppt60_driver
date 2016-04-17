@@ -2,8 +2,10 @@
 # -*- coding:utf-8 -*-
 
 import unittest
-from minimock import mock
-from minimock import restore
+try:
+    from unittest.mock import patch
+except:
+    from mock import patch
 import tsmppt60_driver
 from tsmppt60_driver.base import ModbusRegisterTable
 
@@ -27,6 +29,15 @@ class TestMb(unittest.TestCase):
     """Test case for ManagementBase."""
 
     @classmethod
+    def _dummy_requests_get(cls, _url, timeout):
+        _converted_param = str(_url).split("?")[1]
+        if _converted_param in cls._dummy_table_scaling:
+            _text = cls._dummy_table_scaling[_converted_param]
+        else:
+            _text = cls._dummy_table_response[_converted_param]
+        return DummyResponse(_url, _text)
+
+    @classmethod
     def _to_url_params(cls, modbus_register):
         addr = int(modbus_register[0])
         reg = int(modbus_register[-1])
@@ -34,15 +45,8 @@ class TestMb(unittest.TestCase):
             .format(str(addr >> 8), str(addr & 255), str(reg >> 8), str(reg & 255))
 
     @classmethod
-    def setUpClass(cls):
-        def dummy_requests_get(_url, timeout):
-            _converted_param = str(_url).split("?")[1]
-            if _converted_param in cls._dummy_table_scaling:
-                _text = cls._dummy_table_scaling[_converted_param]
-            else:
-                _text = cls._dummy_table_response[_converted_param]
-            return DummyResponse(_url, _text)
-
+    @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
+    def setUpClass(cls, patched_get):
         cls._dummy_table_scaling = {
             cls._to_url_params(ModbusRegisterTable.VOLTAGE_SCALING_HIGH): "1,4,2,1,180",
             cls._to_url_params(ModbusRegisterTable.VOLTAGE_SCALING_LOW): "1,4,2,2,10",
@@ -64,13 +68,12 @@ class TestMb(unittest.TestCase):
             cls._to_url_params(ModbusRegisterTable.AH_CHARGE_RESETABLE): {"raw_text": "1,4,4,0,2,231,134", "value": 19034.2},
             cls._to_url_params(ModbusRegisterTable.KWH_CHARGE_RESETABLE): {"raw_text": "1,4,2,1,4", "value": 260.0}}
 
-        mock("tsmppt60_driver.base.requests.get", returns_func=dummy_requests_get)
-
+        patched_get.side_effect = cls._dummy_requests_get
         cls._mb = tsmppt60_driver.base.ManagementBase('dummy.co.jp')
 
     @classmethod
     def tearDownClass(cls):
-        restore()
+        pass
 
     def setUp(self):
         pass
@@ -78,7 +81,10 @@ class TestMb(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_compute_scaler_voltage(self):
+    @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
+    def test_compute_scaler_voltage(self, patched_get):
+        patched_get.side_effect = self._dummy_requests_get
+
         key = self._to_url_params(ModbusRegisterTable.VOLTAGE_SCALING_HIGH)
         elems = str(self._dummy_table_scaling[key]).split(',')
         high = int(elems[3]) << 8 | int(elems[4])
@@ -98,7 +104,10 @@ class TestMb(unittest.TestCase):
 
         self.assertEqual(expected_value, v_scaled)
 
-    def test_compute_scaler_current(self):
+    @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
+    def test_compute_scaler_current(self, patched_get):
+        patched_get.side_effect = self._dummy_requests_get
+
         key = self._to_url_params(ModbusRegisterTable.CURRENT_SCALING_HIGH)
         elems = str(self._dummy_table_scaling[key]).split(',')
         high = int(elems[3]) << 8 | int(elems[4])

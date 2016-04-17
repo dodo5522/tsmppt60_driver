@@ -227,17 +227,17 @@ class ManagementBase(object):
 
 if __name__ == "__main__":
     import doctest
-    from minimock import Mock
-    from minimock import restore
+    try:
+        from unittest.mock import patch
+    except:
+        from mock import patch
 
     class DummyRequest(object):
         """Dummy response class against requests.Response."""
-
         pass
 
     class DummyResponse(object):
         """Dummy response class against requests.Response."""
-
         pass
 
     dummy_host = 'dummy.co.jp'
@@ -248,10 +248,8 @@ if __name__ == "__main__":
     res.request = req
     res.text = "1,4,2,0,0"
 
-    requests.get = Mock('requests.get', returns=res)
-
-    doctest.testmod(
-        verbose=True,
-        extraglobs={"mb": ManagementBase(host=dummy_host)})
-
-    restore()
+    with patch('requests.get', returns=res) as _m:
+        _m.return_value = res
+        doctest.testmod(
+            verbose=True,
+            extraglobs={"mb": ManagementBase(host=dummy_host)})
