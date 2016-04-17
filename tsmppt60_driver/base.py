@@ -227,17 +227,17 @@ class ManagementBase(object):
 
 if __name__ == "__main__":
     import doctest
-    from minimock import Mock
-    from minimock import restore
+    try:
+        from unittest.mock import patch
+    except:
+        from mock import patch
 
     class DummyRequest(object):
         """Dummy response class against requests.Response."""
-
         pass
 
     class DummyResponse(object):
         """Dummy response class against requests.Response."""
-
         pass
 
     dummy_host = 'dummy.co.jp'

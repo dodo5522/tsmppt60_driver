@@ -2,8 +2,10 @@
 # -*- coding:utf-8 -*-
 
 import unittest
-from minimock import mock
-from minimock import restore
+try:
+    from unittest.mock import patch
+except:
+    from mock import patch
 import tsmppt60_driver
 from tsmppt60_driver.base import ModbusRegisterTable
 
