@@ -1,7 +1,13 @@
+.DS_Store
 .python-version
 tsmppt60_driver.egg-info
 build
+cover
 dist
 docs
+htmlcov
 *.swp
 *.pyc
+*.un~
+.coverage
+.idea
