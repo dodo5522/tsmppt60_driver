@@ -160,6 +160,7 @@ class ManagementBase(object):
 
     def _compute_scaler(self, address_high, address_low):
         """Compute and return the voltage/current scaler as written on data sheet page 8 or 25.
+        This will be called only once when initializing this object.
 
         Vscaling = whole.fraction = [V_PU hi].[V_PU lo]
 
@@ -190,6 +191,9 @@ class ManagementBase(object):
         address -- address to get a value
         scale_factor -- unit string
         register -- register to get a value
+
+        Returns:
+            Scaled value like 12.4 against your expecting.
 
         >>> mb.get_scaled_value(0x0026, 'V', 1)
         0.0
