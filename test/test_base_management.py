@@ -48,25 +48,25 @@ class TestMb(unittest.TestCase):
     @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
     def setUpClass(cls, patched_get):
         cls._dummy_table_scaling = {
-            cls._to_url_params(ModbusRegisterTable.VOLTAGE_SCALING_HIGH): "1,4,2,1,180",
-            cls._to_url_params(ModbusRegisterTable.VOLTAGE_SCALING_LOW): "1,4,2,2,10",
-            cls._to_url_params(ModbusRegisterTable.CURRENT_SCALING_HIGH): "1,4,2,3,80",
-            cls._to_url_params(ModbusRegisterTable.CURRENT_SCALING_LOW): "1,4,2,4,20"}
+            cls._to_url_params(ModbusRegisterTable.VOLTAGE_SCALING_HIGH): "1,4,2,0,180",
+            cls._to_url_params(ModbusRegisterTable.VOLTAGE_SCALING_LOW): "1,4,2,0,0",
+            cls._to_url_params(ModbusRegisterTable.CURRENT_SCALING_HIGH): "1,4,2,0,80",
+            cls._to_url_params(ModbusRegisterTable.CURRENT_SCALING_LOW): "1,4,2,0,0"}
 
         cls._dummy_table_response = {
-            cls._to_url_params(ModbusRegisterTable.BATTERY_VOLTAGE): {"raw_text": "1,4,2,16,25", "value": 22.64},
-            cls._to_url_params(ModbusRegisterTable.CHARGING_CURRENT): {"raw_text": "1,4,2,255,168", "value": -0.2},
-            cls._to_url_params(ModbusRegisterTable.TARGET_REGULATION_VOLTAGE): {"raw_text": "1,4,2,0,0", "value": 0.0},
-            cls._to_url_params(ModbusRegisterTable.OUTPUT_POWER): {"raw_text": "1,4,2,0,0", "value": 0.0},
-            cls._to_url_params(ModbusRegisterTable.ARRAY_VOLTAGE): {"raw_text": "1,4,2,0,84", "value": 0.45},
-            cls._to_url_params(ModbusRegisterTable.ARRAY_CURRENT): {"raw_text": "1,4,2,0,0", "value": 0.0},
-            cls._to_url_params(ModbusRegisterTable.VMP_LAST_SWEEP): {"raw_text": "1,4,2,11,208", "value": 16.61},
-            cls._to_url_params(ModbusRegisterTable.VOC_LAST_SWEEP): {"raw_text": "1,4,2,15,193", "value": 22.15},
-            cls._to_url_params(ModbusRegisterTable.POWER_LAST_SWEEP): {"raw_text": "1,4,2,0,23", "value": 3.0},
-            cls._to_url_params(ModbusRegisterTable.HEATSINK_TEMP): {"raw_text": "1,4,2,0,7", "value": 7.0},
-            cls._to_url_params(ModbusRegisterTable.BATTERY_TEMP): {"raw_text": "1,4,2,0,25", "value": 25.0},
-            cls._to_url_params(ModbusRegisterTable.AH_CHARGE_RESETABLE): {"raw_text": "1,4,4,0,2,231,134", "value": 19034.2},
-            cls._to_url_params(ModbusRegisterTable.KWH_CHARGE_RESETABLE): {"raw_text": "1,4,2,1,4", "value": 260.0}}
+            cls._to_url_params(ModbusRegisterTable.BATTERY_VOLTAGE): "1,4,2,17,160",  # 24.78515625
+            cls._to_url_params(ModbusRegisterTable.CHARGING_CURRENT): "1,4,2,255,168",  # -0.21484375
+            cls._to_url_params(ModbusRegisterTable.TARGET_REGULATION_VOLTAGE): "1,4,2,0,0",  # 0.0
+            cls._to_url_params(ModbusRegisterTable.OUTPUT_POWER): "1,4,2,0,0",  # 0.0
+            cls._to_url_params(ModbusRegisterTable.ARRAY_VOLTAGE): "1,4,2,0,84",  # 0.45
+            cls._to_url_params(ModbusRegisterTable.ARRAY_CURRENT): "1,4,2,0,0",  # 0.0
+            cls._to_url_params(ModbusRegisterTable.VMP_LAST_SWEEP): "1,4,2,11,208",  # 16.61
+            cls._to_url_params(ModbusRegisterTable.VOC_LAST_SWEEP): "1,4,2,15,193",  # 22.15
+            cls._to_url_params(ModbusRegisterTable.POWER_LAST_SWEEP): "1,4,2,0,23",  # 3.0
+            cls._to_url_params(ModbusRegisterTable.HEATSINK_TEMP): "1,4,2,0,7",  # 7.0
+            cls._to_url_params(ModbusRegisterTable.BATTERY_TEMP): "1,4,2,0,25",  # 25.0
+            cls._to_url_params(ModbusRegisterTable.AH_CHARGE_RESETABLE): "1,4,4,0,2,231,134",  # 19034.2
+            cls._to_url_params(ModbusRegisterTable.KWH_CHARGE_RESETABLE): "1,4,2,1,4"}  # 260.0
 
         patched_get.side_effect = cls._dummy_requests_get
         cls._mb = tsmppt60_driver.base.ManagementBase('dummy.co.jp')
@@ -126,6 +126,71 @@ class TestMb(unittest.TestCase):
             ModbusRegisterTable.CURRENT_SCALING_LOW[0])
 
         self.assertEqual(expected_value, i_scaled)
+
+    @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
+    def test_get_scaled_value_V(self, patched_get):
+        patched_get.side_effect = self._dummy_requests_get
+
+        modbus_register = ModbusRegisterTable.BATTERY_VOLTAGE
+
+        val = self._mb.get_scaled_value(
+            address=modbus_register[0],
+            scale_factor=modbus_register[1],
+            register=modbus_register[-1])
+
+        self.assertEqual(24.78515625, val)
+
+    @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
+    def test_get_scaled_value_A(self, patched_get):
+        patched_get.side_effect = self._dummy_requests_get
+
+        modbus_register = ModbusRegisterTable.CHARGING_CURRENT
+
+        val = self._mb.get_scaled_value(
+            address=modbus_register[0],
+            scale_factor=modbus_register[1],
+            register=modbus_register[-1])
+
+        self.assertEqual(-0.21484375, val)
+
+    @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
+    def test_get_scaled_value_W(self, patched_get):
+        patched_get.side_effect = self._dummy_requests_get
+
+        modbus_register = ModbusRegisterTable.OUTPUT_POWER
+
+        val = self._mb.get_scaled_value(
+            address=modbus_register[0],
+            scale_factor=modbus_register[1],
+            register=modbus_register[-1])
+
+        self.assertEqual(0.0, val)
+
+    @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
+    def test_get_scaled_value_Ah(self, patched_get):
+        patched_get.side_effect = self._dummy_requests_get
+
+        modbus_register = ModbusRegisterTable.AH_CHARGE_RESETABLE
+
+        val = self._mb.get_scaled_value(
+            address=modbus_register[0],
+            scale_factor=modbus_register[1],
+            register=modbus_register[-1])
+
+        self.assertEqual(19034.2, val)
+
+    @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
+    def test_get_scaled_value_kWh(self, patched_get):
+        patched_get.side_effect = self._dummy_requests_get
+
+        modbus_register = ModbusRegisterTable.KWH_CHARGE_RESETABLE
+
+        val = self._mb.get_scaled_value(
+            address=modbus_register[0],
+            scale_factor=modbus_register[1],
+            register=modbus_register[-1])
+
+        self.assertEqual(260.0, val)
 
 
 if __name__ == '__main__':
