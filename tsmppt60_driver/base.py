@@ -222,7 +222,7 @@ class ManagementBase(object):
             wscale = self._iscale * self._vscale
             return raw_value * wscale / pow(2, 17)
         elif scale_factor == "Ah":
-            return raw_value / 10
+            return raw_value / 10.0
         elif scale_factor == "kWh" or scale_factor == "C":
             return raw_value
         else:
