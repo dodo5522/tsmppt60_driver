@@ -6,6 +6,7 @@ cover
 dist
 docs
 htmlcov
+tags
 *.swp
 *.pyc
 *.un~
