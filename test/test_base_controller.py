@@ -71,14 +71,15 @@ class TestChargeControllerStatus(unittest.TestCase):
 
     @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
     def test_get_battery_voltage(self, patched_get):
+        address = 0x0026
+        register = 1
+
         def _requests_get(url, timeout):
             mb_url_parm = str(url).split("?")[-1]
 
-            table_scaling = {
-                self._gen_url_parm(0x0026, 1): "1,4,2,17,160"}  # BATTERY_VOLTAGE, 24.78515625
+            self.assertEqual(self._gen_url_parm(address, register), mb_url_parm)  # BATTERY_VOLTAGE
 
-            text = table_scaling[mb_url_parm]
-            return DummyResponse(url, text)
+            return DummyResponse(url, "1,4,2,17,160")  # 24.78515625
 
         patched_get.side_effect = _requests_get
 
@@ -88,17 +89,36 @@ class TestChargeControllerStatus(unittest.TestCase):
             "value": 24.78515625,
             "unit": "V"}
 
-        value = self._bat.get_status(0x0026, 'V', 'Battery Voltage', 1)
+        value = self._bat.get_status(address, 'V', 'Battery Voltage', register)
 
         self.assertEqual(set(expected_value.items()), set(value.items()))
 
-        # (51, 'V', 'Target Voltage', 1)
         # (39, 'A', 'Charge Current', 1)
         # (58, 'W', 'Output Power', 1)
 
     @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
     def test_get_target_voltage(self, patched_get):
-        patched_get.return_value = "1,4,2,0,0"  # 0.0
+        address = 0x0033
+        register = 1
+
+        def _requests_get(url, timeout):
+            mb_url_parm = str(url).split("?")[-1]
+
+            self.assertEqual(mb_url_parm, self._gen_url_parm(address, register))  # TARGET_REGULATION_VOLTAGE
+
+            return DummyResponse(url, "1,4,2,0,0")  # 0.0
+
+        patched_get.side_effect = _requests_get
+
+        expected_value = {
+            "group": "Battery",
+            "label": "Target Voltage",
+            "value": 0.0,
+            "unit": "V"}
+
+        value = self._bat.get_status(address, "V", "Target Voltage", register)
+
+        self.assertEqual(set(expected_value.items()), set(value.items()))
 
     @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
     def test_get_output_power(self, patched_get):
