@@ -47,7 +47,7 @@ class ModbusRegisterTable(object):
     VOLTAGE_SCALING_LOW = (0x0001, "", "Voltage Scaling Low", 1)
     CURRENT_SCALING_HIGH = (0x0002, "", "Current Scaling High", 1)
     CURRENT_SCALING_LOW = (0x0003, "", "Current Scaling Low", 1)
-    SOFTWARE_VERSION = (0x0004, "", "Software Version", 1)
+    SOFTWARE_VERSION = (0x0004, "Numbers", "Software Version", 1)
 
     BATTERY_VOLTAGE = (0x0026, "V", "Battery Voltage", 1)
     CHARGING_CURRENT = (0x0027, "A", "Charge Current", 1)
@@ -62,6 +62,9 @@ class ModbusRegisterTable(object):
     BATTERY_TEMP = (0x0025, "C", "Battery Temperature", 1)
     AH_CHARGE_RESETABLE = (0x0034, "Ah", "Amp Hours", 2)
     KWH_CHARGE_RESETABLE = (0x0038, "kWh", "Kilowatt Hours", 1)
+
+    LED_STATE = (0x0031, "Numbers", "LED State", 1)
+    CHARGE_STATE = (0x0032, "Numbers", "Charge State", 1)
 
 
 class ManagementBase(object):
@@ -184,6 +187,37 @@ class ManagementBase(object):
         R = self._read_modbus(address_low, 1)
         return float(L) + (float(R) / pow(2, 16))
 
+    def get_raw_value(self, address, register):
+        """Return a raw value against address got from TS-MPPT-60.
+
+        Keyword arguments:
+        address -- address to get a value
+        register -- register to get a value
+
+        Returns:
+            Raw value as integer type.
+
+        >>> mb.get_raw_value(0x0026, 1)
+        0
+        >>> mb.get_raw_value(0x0027, 1)
+        0
+        """
+        raw_value_str = self._read_modbus(address, register)
+
+        if register > 1:
+            values = raw_value_str.split("#")
+            raw_value = (int(values[0]) * 65536) + int(values[1])
+        else:
+            raw_value = int(raw_value_str)
+            # raw_value <<= 16
+            # raw_value >>= 16
+            raw_value &= 0xffff
+            if raw_value & 0x8000:
+                raw_value ^= 0xffff
+                raw_value = -1 * (raw_value + 1)
+
+        return raw_value
+
     def get_scaled_value(self, address, scale_factor, register):
         """Calculate and return a scaled status value against address got from TS-MPPT-60.
 
@@ -200,19 +234,7 @@ class ManagementBase(object):
         >>> mb.get_scaled_value(0x0027, 'A', 1)
         0.0
         """
-        raw_value_str = self._read_modbus(address, register)
-
-        if register > 1:
-            values = raw_value_str.split("#")
-            raw_value = (int(values[0]) * 65536) + int(values[1])
-        else:
-            raw_value = int(raw_value_str)
-            # raw_value <<= 16
-            # raw_value >>= 16
-            raw_value &= 0xffff
-            if raw_value & 0x8000:
-                raw_value ^= 0xffff
-                raw_value = -1 * (raw_value + 1)
+        raw_value = self.get_raw_value(address, register)
 
         if scale_factor == "V":
             scaled_value = raw_value * self._vscale / pow(2, 15)

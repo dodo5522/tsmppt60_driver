@@ -8,6 +8,7 @@ from tsmppt60_driver.status import BatteryStatus
 from tsmppt60_driver.status import CountersStatus
 from tsmppt60_driver.status import SolarArrayStatus
 from tsmppt60_driver.status import TemperaturesStatus
+from tsmppt60_driver.status import OperatingConditions
 
 
 class SystemStatus(object):
@@ -27,7 +28,7 @@ class SystemStatus(object):
     The above data is limited information. You can disable the limitter
     like below.
 
-        print(SystemStatus("192.168.1.20", False).get())
+        print(SystemStatus("192.168.1.20").get(False))
 
         {'Amp Hours': {'group': 'Counter', 'unit': 'Ah', 'value': 18097.8},
          'Array Current': {'group': 'Array', 'unit': 'A', 'value': 1.3},
@@ -41,7 +42,9 @@ class SystemStatus(object):
          'Sweep Pmax': {'group': 'Array', 'unit': 'W', 'value': 73.0},
          'Sweep Vmp': {'group': 'Array', 'unit': 'V', 'value': 53.41},
          'Sweep Voc': {'group': 'Array', 'unit': 'V', 'value': 60.05},
-         'Target Voltage': {'group': 'Battery', 'unit': 'V', 'value': 28.6}}
+         'Target Voltage': {'group': 'Battery', 'unit': 'V', 'value': 28.6},
+         'LED State': {'group': 'Condition', 'value': 11, 'unit': ''},
+         'Charge State': {'group': 'Condition', 'value': 3, 'unit': ''}}
     """
 
     def __init__(self, host):
@@ -56,7 +59,8 @@ class SystemStatus(object):
             BatteryStatus(_mb),
             SolarArrayStatus(_mb),
             TemperaturesStatus(_mb),
-            CountersStatus(_mb))
+            CountersStatus(_mb),
+            OperatingConditions(_mb))
 
     def get(self, is_limit=True):
         """Get and return all status of devices like the below dict.
