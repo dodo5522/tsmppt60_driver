@@ -233,7 +233,7 @@ if __name__ == "__main__":
     import doctest
     try:
         from unittest.mock import patch
-    except:
+    except ImportError:
         from mock import patch
 
     class DummyRequest(object):
