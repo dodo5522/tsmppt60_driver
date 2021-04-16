@@ -137,29 +137,25 @@ class ManagementBase(object):
         mbid -- MBID
 
         >>> mb._read_modbus(0x0000, 1)
-        '0'
+        [0]
         >>> mb._read_modbus(0x0001, 1)
-        '0'
+        [0]
         """
         raw_value_str = self._get(address, register, mbid)
         raw_values = [int(v) for v in raw_value_str.split(",")]
         idx_max = raw_values[2]
         raw_values = raw_values[3:]
         idx = 0
-        ret_str = ""
+        ret = []
 
         while idx < idx_max:
-            ret_short = (raw_values[idx] * 256)
+            ret_short = (raw_values[idx] << 8)
             idx += 1
             ret_short += raw_values[idx]
             idx += 1
+            ret.append(ret_short)
 
-            ret_str += str(ret_short)
-
-            if idx < idx_max:
-                ret_str += "#"
-
-        return ret_str
+        return ret
 
     def _compute_scaler(self, address_high, address_low):
         """Compute and return the voltage/current scaler as written on data sheet page 8 or 25.
@@ -183,8 +179,8 @@ class ManagementBase(object):
         >>> mb._compute_scaler(2, 3)
         0.0
         """
-        L = self._read_modbus(address_high, 1)
-        R = self._read_modbus(address_low, 1)
+        L = self._read_modbus(address_high, 1)[0]
+        R = self._read_modbus(address_low, 1)[0]
         return float(L) + (float(R) / pow(2, 16))
 
     def get_raw_value(self, address, register):
@@ -202,15 +198,12 @@ class ManagementBase(object):
         >>> mb.get_raw_value(0x0027, 1)
         0
         """
-        raw_value_str = self._read_modbus(address, register)
+        values = self._read_modbus(address, register)
 
         if register > 1:
-            values = raw_value_str.split("#")
-            raw_value = (int(values[0]) * 65536) + int(values[1])
+            raw_value = (values[0] << 16) | (values[1] & 0xffff)
         else:
-            raw_value = int(raw_value_str)
-            # raw_value <<= 16
-            # raw_value >>= 16
+            raw_value = values[0]
             raw_value &= 0xffff
             if raw_value & 0x8000:
                 raw_value ^= 0xffff
