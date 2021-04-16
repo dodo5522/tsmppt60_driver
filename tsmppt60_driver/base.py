@@ -215,18 +215,18 @@ class ManagementBase(object):
                 raw_value = -1 * (raw_value + 1)
 
         if scale_factor == "V":
-            return raw_value * self._vscale / pow(2, 15)
+            scaled_value = raw_value * self._vscale / pow(2, 15)
         elif scale_factor == "A":
-            return raw_value * self._iscale / pow(2, 15)
+            scaled_value = raw_value * self._iscale / pow(2, 15)
         elif scale_factor == "W":
             wscale = self._iscale * self._vscale
-            return raw_value * wscale / pow(2, 17)
+            scaled_value = raw_value * wscale / pow(2, 17)
         elif scale_factor == "Ah":
-            return raw_value / 10.0
-        elif scale_factor == "kWh" or scale_factor == "C":
-            return raw_value
+            scaled_value = raw_value / 10.0
         else:
-            return raw_value
+            scaled_value = raw_value
+
+        return round(scaled_value, 2)
 
 
 if __name__ == "__main__":
