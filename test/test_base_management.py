@@ -138,7 +138,7 @@ class TestMb(unittest.TestCase):
             scale_factor=modbus_register[1],
             register=modbus_register[-1])
 
-        self.assertEqual(24.78515625, val)
+        self.assertEqual(round(24.78515625, 2), val)
 
     @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
     def test_get_scaled_value_A(self, patched_get):
@@ -151,7 +151,7 @@ class TestMb(unittest.TestCase):
             scale_factor=modbus_register[1],
             register=modbus_register[-1])
 
-        self.assertEqual(-0.21484375, val)
+        self.assertEqual(round(-0.21484375, 2), val)
 
     @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
     def test_get_scaled_value_W(self, patched_get):

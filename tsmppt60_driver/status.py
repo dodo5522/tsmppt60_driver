@@ -285,10 +285,53 @@ class CountersStatus(ChargeControllerStatus):
             ModbusRegisterTable.AH_CHARGE_RESETABLE,
             ModbusRegisterTable.KWH_CHARGE_RESETABLE)
 
+
+class OperatingConditions(ChargeControllerStatus):
+    """
+    Class to get data about controller's operating conditions.
+
+    * LED state
+    * Charge state
+    """
+
+    def __init__(self, mb):
+        """
+        Initialize OperatingConditions class object.
+
+        Keyword arguments:
+        mb -- instance of ManagementBase class
+        """
+        ChargeControllerStatus.__init__(self, mb, "Condition")
+
+    def get_params(self, is_limit=True):
+        """Get and return a list of all params to get the conditions. The param is consisted by (address, scale_factor, label, register).
+
+        Keyword arguments:
+        is_limit -- limit the number of getting status
+
+        >>> condition.get_params() == (
+        ...    (49, '', 'LED State', 1),
+        ...    (50, '', 'Charge State', 1))
+        True
+        >>> condition.get_params(True) == (
+        ...    (49, '', 'LED State', 1),
+        ...    (50, '', 'Charge State', 1))
+        True
+        >>> condition.get_params(False) == (
+        ...    (49, '', 'LED State', 1),
+        ...    (50, '', 'Charge State', 1))
+        True
+        """
+        return (
+            ModbusRegisterTable.LED_STATE,
+            ModbusRegisterTable.CHARGE_STATE)
+
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod(verbose=True, extraglobs={
         "bat": BatteryStatus(None),
         "array": SolarArrayStatus(None),
         "temp": TemperaturesStatus(None),
-        "count": CountersStatus(None)})
+        "count": CountersStatus(None),
+        "condition": OperatingConditions(None)})

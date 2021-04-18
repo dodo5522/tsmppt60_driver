@@ -86,7 +86,7 @@ class TestChargeControllerStatus(unittest.TestCase):
         expected_value = {
             "group": "Battery",
             "label": "Battery Voltage",
-            "value": 24.78515625,
+            "value": round(24.78515625, 2),
             "unit": "V"}
 
         value = self._bat.get_status(address, 'V', 'Battery Voltage', register)

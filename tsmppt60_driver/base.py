@@ -47,7 +47,7 @@ class ModbusRegisterTable(object):
     VOLTAGE_SCALING_LOW = (0x0001, "", "Voltage Scaling Low", 1)
     CURRENT_SCALING_HIGH = (0x0002, "", "Current Scaling High", 1)
     CURRENT_SCALING_LOW = (0x0003, "", "Current Scaling Low", 1)
-    SOFTWARE_VERSION = (0x0004, "", "Software Version", 1)
+    SOFTWARE_VERSION = (0x0004, "Numbers", "Software Version", 1)
 
     BATTERY_VOLTAGE = (0x0026, "V", "Battery Voltage", 1)
     CHARGING_CURRENT = (0x0027, "A", "Charge Current", 1)
@@ -62,6 +62,9 @@ class ModbusRegisterTable(object):
     BATTERY_TEMP = (0x0025, "C", "Battery Temperature", 1)
     AH_CHARGE_RESETABLE = (0x0034, "Ah", "Amp Hours", 2)
     KWH_CHARGE_RESETABLE = (0x0038, "kWh", "Kilowatt Hours", 1)
+
+    LED_STATE = (0x0031, "Numbers", "LED State", 1)
+    CHARGE_STATE = (0x0032, "Numbers", "Charge State", 1)
 
 
 class ManagementBase(object):
@@ -134,29 +137,25 @@ class ManagementBase(object):
         mbid -- MBID
 
         >>> mb._read_modbus(0x0000, 1)
-        '0'
+        [0]
         >>> mb._read_modbus(0x0001, 1)
-        '0'
+        [0]
         """
         raw_value_str = self._get(address, register, mbid)
         raw_values = [int(v) for v in raw_value_str.split(",")]
         idx_max = raw_values[2]
         raw_values = raw_values[3:]
         idx = 0
-        ret_str = ""
+        ret = []
 
         while idx < idx_max:
-            ret_short = (raw_values[idx] * 256)
+            ret_short = (raw_values[idx] << 8)
             idx += 1
             ret_short += raw_values[idx]
             idx += 1
+            ret.append(ret_short)
 
-            ret_str += str(ret_short)
-
-            if idx < idx_max:
-                ret_str += "#"
-
-        return ret_str
+        return ret
 
     def _compute_scaler(self, address_high, address_low):
         """Compute and return the voltage/current scaler as written on data sheet page 8 or 25.
@@ -180,9 +179,37 @@ class ManagementBase(object):
         >>> mb._compute_scaler(2, 3)
         0.0
         """
-        L = self._read_modbus(address_high, 1)
-        R = self._read_modbus(address_low, 1)
+        L = self._read_modbus(address_high, 1)[0]
+        R = self._read_modbus(address_low, 1)[0]
         return float(L) + (float(R) / pow(2, 16))
+
+    def get_raw_value(self, address, register):
+        """Return a raw value against address got from TS-MPPT-60.
+
+        Keyword arguments:
+        address -- address to get a value
+        register -- register to get a value
+
+        Returns:
+            Raw value as integer type.
+
+        >>> mb.get_raw_value(0x0026, 1)
+        0
+        >>> mb.get_raw_value(0x0027, 1)
+        0
+        """
+        values = self._read_modbus(address, register)
+
+        if register > 1:
+            raw_value = (values[0] << 16) | (values[1] & 0xffff)
+        else:
+            raw_value = values[0]
+            raw_value &= 0xffff
+            if raw_value & 0x8000:
+                raw_value ^= 0xffff
+                raw_value = -1 * (raw_value + 1)
+
+        return raw_value
 
     def get_scaled_value(self, address, scale_factor, register):
         """Calculate and return a scaled status value against address got from TS-MPPT-60.
@@ -200,40 +227,28 @@ class ManagementBase(object):
         >>> mb.get_scaled_value(0x0027, 'A', 1)
         0.0
         """
-        raw_value_str = self._read_modbus(address, register)
-
-        if register > 1:
-            values = raw_value_str.split("#")
-            raw_value = (int(values[0]) * 65536) + int(values[1])
-        else:
-            raw_value = int(raw_value_str)
-            # raw_value <<= 16
-            # raw_value >>= 16
-            raw_value &= 0xffff
-            if raw_value & 0x8000:
-                raw_value ^= 0xffff
-                raw_value = -1 * (raw_value + 1)
+        raw_value = self.get_raw_value(address, register)
 
         if scale_factor == "V":
-            return raw_value * self._vscale / pow(2, 15)
+            scaled_value = raw_value * self._vscale / pow(2, 15)
         elif scale_factor == "A":
-            return raw_value * self._iscale / pow(2, 15)
+            scaled_value = raw_value * self._iscale / pow(2, 15)
         elif scale_factor == "W":
             wscale = self._iscale * self._vscale
-            return raw_value * wscale / pow(2, 17)
+            scaled_value = raw_value * wscale / pow(2, 17)
         elif scale_factor == "Ah":
-            return raw_value / 10.0
-        elif scale_factor == "kWh" or scale_factor == "C":
-            return raw_value
+            scaled_value = raw_value / 10.0
         else:
-            return raw_value
+            scaled_value = raw_value
+
+        return round(scaled_value, 2)
 
 
 if __name__ == "__main__":
     import doctest
     try:
         from unittest.mock import patch
-    except:
+    except ImportError:
         from mock import patch
 
     class DummyRequest(object):
