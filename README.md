@@ -34,7 +34,7 @@ This is python driver module to get the following status of TS-MPPT-60.
 SystemStatus class object is iterator containing all live status data of TS-MPPT-60. Try the following line.
 
 ```python
-    print(SystemStatus("192.168.1.20").get())
+print(SystemStatus("192.168.1.20").get())
 ```
 
 The result is like following.
@@ -53,7 +53,7 @@ The result is like following.
 The above data is limited information. You can disable the limitter by setting False to the second argument as SystemStatus() class.
 
 ```python
-    print(SystemStatus("192.168.1.20").get(False))
+print(SystemStatus("192.168.1.20").get(False))
 ```
 
 The result is like following.
@@ -72,4 +72,16 @@ The result is like following.
  'Sweep Vmp': {'group': 'Array', 'unit': 'V', 'value': 53.41},
  'Sweep Voc': {'group': 'Array', 'unit': 'V', 'value': 60.05},
  'Target Voltage': {'group': 'Battery', 'unit': 'V', 'value': 28.6}}
+```
+
+JSON string can be got with following code.
+
+```bash
+$ python -c "from tsmppt60_driver import *; import json; print(json.dumps(SystemStatus('192.168.1.20').get()))" | jq '."Battery Voltage"'
+
+{
+  "group": "Battery",
+  "value": 28.6,
+  "unit": "V"
+}
 ```

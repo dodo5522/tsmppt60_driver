@@ -12,7 +12,7 @@ from tsmppt60_driver.status import OperatingConditions
 
 
 class SystemStatus(object):
-    """This is class to get the system status of TS-MPPT-60. Use this like below.
+    """This is class to get the system status of TS-MPPT-60. Use this like below with dict object.
 
         print(SystemStatus("192.168.1.20").get())
 
