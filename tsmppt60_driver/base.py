@@ -1,11 +1,9 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
-
-"""TS-MPPT-60 driver's base modules."""
-
 import logging
 
 import requests
+
+
+"""TS-MPPT-60 driver's base modules."""
 
 
 class Logger(object):
@@ -24,8 +22,7 @@ class Logger(object):
         self.logger = logging.getLogger(type(self).__name__)
 
         handler = logging.StreamHandler()
-        formatter = logging.Formatter(
-            fmt=self._FORMAT_LOG_MSG, datefmt=self._FORMAT_LOG_DATE)
+        formatter = logging.Formatter(fmt=self._FORMAT_LOG_MSG, datefmt=self._FORMAT_LOG_DATE)
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
 
@@ -47,17 +44,19 @@ class ModbusRegisterTable(object):
     VOLTAGE_SCALING_LOW = (0x0001, "", "Voltage Scaling Low", 1)
     CURRENT_SCALING_HIGH = (0x0002, "", "Current Scaling High", 1)
     CURRENT_SCALING_LOW = (0x0003, "", "Current Scaling Low", 1)
+    VOLTAGE_SCALING = (0x0000, "", "Voltage Scaling", 2)
+    CURRENT_SCALING = (0x0002, "", "Current Scaling", 2)
     SOFTWARE_VERSION = (0x0004, "Numbers", "Software Version", 1)
 
     BATTERY_VOLTAGE = (0x0026, "V", "Battery Voltage", 1)
     CHARGING_CURRENT = (0x0027, "A", "Charge Current", 1)
     TARGET_REGULATION_VOLTAGE = (0x0033, "V", "Target Voltage", 1)
-    OUTPUT_POWER = (0x003a, "W", "Output Power", 1)
-    ARRAY_VOLTAGE = (0x001b, "V", "Array Voltage", 1)
-    ARRAY_CURRENT = (0x001d, "A", "Array Current", 1)
-    VMP_LAST_SWEEP = (0x003d, "V", "Sweep Vmp", 1)
-    VOC_LAST_SWEEP = (0x003e, "V", "Sweep Voc", 1)
-    POWER_LAST_SWEEP = (0x003c, "W", "Sweep Pmax", 1)
+    OUTPUT_POWER = (0x003A, "W", "Output Power", 1)
+    ARRAY_VOLTAGE = (0x001B, "V", "Array Voltage", 1)
+    ARRAY_CURRENT = (0x001D, "A", "Array Current", 1)
+    VMP_LAST_SWEEP = (0x003D, "V", "Sweep Vmp", 1)
+    VOC_LAST_SWEEP = (0x003E, "V", "Sweep Voc", 1)
+    POWER_LAST_SWEEP = (0x003C, "W", "Sweep Pmax", 1)
     HEATSINK_TEMP = (0x0023, "C", "Heat Sink Temperature", 1)
     BATTERY_TEMP = (0x0025, "C", "Battery Temperature", 1)
     AH_CHARGE_RESETABLE = (0x0034, "Ah", "Amp Hours", 2)
@@ -93,13 +92,8 @@ class ManagementBase(object):
             self._logger.setLevel(logging.DEBUG)
 
         self._url = "http://" + host + "/" + cgi
-
-        self._vscale = float(self._compute_scaler(
-            ModbusRegisterTable.VOLTAGE_SCALING_HIGH[0],
-            ModbusRegisterTable.VOLTAGE_SCALING_LOW[0]))
-        self._iscale = float(self._compute_scaler(
-            ModbusRegisterTable.CURRENT_SCALING_HIGH[0],
-            ModbusRegisterTable.CURRENT_SCALING_LOW[0]))
+        self._vscale = self._compute_scaler(ModbusRegisterTable.VOLTAGE_SCALING)
+        self._iscale = self._compute_scaler(ModbusRegisterTable.CURRENT_SCALING)
 
     def _get(self, addr, reg, mbid=_ID_MODBUS, field=4):
         """Get and return raw data string like "1,4,1,1,1" against MBID, Address, Register, and Field.
@@ -123,8 +117,7 @@ class ManagementBase(object):
         params.append("RHI=" + str(reg >> 8))
         params.append("RLO=" + str(reg & 255))
 
-        res = requests.get(
-            "{0}?{1}".format(self._url, "&".join(params)), timeout=(5, 15))
+        res = requests.get("{0}?{1}".format(self._url, "&".join(params)), timeout=(5, 15))
 
         return res.text
 
@@ -149,7 +142,7 @@ class ManagementBase(object):
         ret = []
 
         while idx < idx_max:
-            ret_short = (raw_values[idx] << 8)
+            ret_short = raw_values[idx] << 8
             idx += 1
             ret_short += raw_values[idx]
             idx += 1
@@ -157,7 +150,7 @@ class ManagementBase(object):
 
         return ret
 
-    def _compute_scaler(self, address_high, address_low):
+    def _compute_scaler(self, param):
         """Compute and return the voltage/current scaler as written on data sheet page 8 or 25.
         This will be called only once when initializing this object.
 
@@ -172,16 +165,14 @@ class ManagementBase(object):
         and then added to V_PU hi Vscaling = 78 + 934/65536 = 78.01425
 
         Keyword arguments:
-        address_high -- High address like V_PU Hi byte
-        address_low -- Low address like V_PU Hi byte
-        >>> mb._compute_scaler(0, 1)
+        param -- register to get a value
+        >>> mb._compute_scaler(ModbusRegisterTable.VOLTAGE_SCALING)
         0.0
-        >>> mb._compute_scaler(2, 3)
+        >>> mb._compute_scaler(ModbusRegisterTable.CURRENT_SCALING)
         0.0
         """
-        L = self._read_modbus(address_high, 1)[0]
-        R = self._read_modbus(address_low, 1)[0]
-        return float(L) + (float(R) / pow(2, 16))
+        values = self._read_modbus(param[0], param[3])
+        return float(values[0]) + (float(values[1]) / pow(2, 16))
 
     def get_raw_value(self, address, register):
         """Return a raw value against address got from TS-MPPT-60.
@@ -201,12 +192,12 @@ class ManagementBase(object):
         values = self._read_modbus(address, register)
 
         if register > 1:
-            raw_value = (values[0] << 16) | (values[1] & 0xffff)
+            raw_value = (values[0] << 16) | (values[1] & 0xFFFF)
         else:
             raw_value = values[0]
-            raw_value &= 0xffff
+            raw_value &= 0xFFFF
             if raw_value & 0x8000:
-                raw_value ^= 0xffff
+                raw_value ^= 0xFFFF
                 raw_value = -1 * (raw_value + 1)
 
         return raw_value
@@ -222,9 +213,9 @@ class ManagementBase(object):
         Returns:
             Scaled value like 12.4 against your expecting.
 
-        >>> mb.get_scaled_value(0x0026, 'V', 1)
+        >>> mb.get_scaled_value(0x0026, "V", 1)
         0.0
-        >>> mb.get_scaled_value(0x0027, 'A', 1)
+        >>> mb.get_scaled_value(0x0027, "A", 1)
         0.0
         """
         raw_value = self.get_raw_value(address, register)
@@ -246,6 +237,7 @@ class ManagementBase(object):
 
 if __name__ == "__main__":
     import doctest
+
     try:
         from unittest.mock import patch
     except ImportError:
@@ -253,22 +245,22 @@ if __name__ == "__main__":
 
     class DummyRequest(object):
         """Dummy response class against requests.Response."""
+
         pass
 
     class DummyResponse(object):
         """Dummy response class against requests.Response."""
+
         pass
 
-    dummy_host = 'dummy.co.jp'
+    dummy_host = "dummy.co.jp"
 
     req = DummyRequest()
-    req.url = 'http://' + dummy_host + '/dummy.cgi'
+    req.url = "http://" + dummy_host + "/dummy.cgi"
     res = DummyResponse()
     res.request = req
     res.text = "1,4,2,0,0"
 
-    with patch('requests.get', returns=res) as _m:
+    with patch("requests.get", returns=res) as _m:
         _m.return_value = res
-        doctest.testmod(
-            verbose=True,
-            extraglobs={"mb": ManagementBase(host=dummy_host)})
+        doctest.testmod(verbose=True, extraglobs={"mb": ManagementBase(host=dummy_host)})
