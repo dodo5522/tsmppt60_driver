@@ -1,14 +1,14 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
+from tsmppt60_driver.base import ManagementBase
+from tsmppt60_driver.status import (
+    BatteryStatus,
+    CountersStatus,
+    OperatingConditions,
+    SolarArrayStatus,
+    TemperaturesStatus,
+)
+
 
 """TS-MPPT-60 driver library to get all devices status data."""
-
-from tsmppt60_driver.base import ManagementBase
-from tsmppt60_driver.status import BatteryStatus
-from tsmppt60_driver.status import CountersStatus
-from tsmppt60_driver.status import SolarArrayStatus
-from tsmppt60_driver.status import TemperaturesStatus
-from tsmppt60_driver.status import OperatingConditions
 
 
 class SystemStatus(object):
@@ -60,7 +60,8 @@ class SystemStatus(object):
             SolarArrayStatus(_mb),
             TemperaturesStatus(_mb),
             CountersStatus(_mb),
-            OperatingConditions(_mb))
+            OperatingConditions(_mb),
+        )
 
     def get(self, is_limit=True):
         """Get and return all status of devices like the below dict.

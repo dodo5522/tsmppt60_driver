@@ -12,3 +12,5 @@ tags
 *.un~
 .coverage
 .idea
+.venv
+.tool-versions

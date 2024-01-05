@@ -1,11 +1,9 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
-
-"""TS-MPPT-60 driver's internal modules inherites base modules."""
-
 import logging
 
 from tsmppt60_driver.base import ModbusRegisterTable
+
+
+"""TS-MPPT-60 driver's internal modules inherites base modules."""
 
 
 class ChargeControllerStatus(object):
@@ -23,9 +21,9 @@ class ChargeControllerStatus(object):
         self._group = group
 
         handler = logging.StreamHandler()
-        handler.setFormatter(logging.Formatter(
-            "%(asctime)s %(name)s %(levelname)s: %(message)s",
-            "%Y/%m/%d %p %l:%M:%S"))
+        handler.setFormatter(
+            logging.Formatter("%(asctime)s %(name)s %(levelname)s: %(message)s", "%Y/%m/%d %p %l:%M:%S")
+        )
 
         self._logger = logging.getLogger(type(self).__name__)
         self._logger.addHandler(handler)
@@ -59,8 +57,7 @@ class ChargeControllerStatus(object):
         ret_values = {}
         ret_values["group"] = self._group
         ret_values["label"] = label
-        ret_values["value"] = self._mb.get_scaled_value(
-            address, scale_factor, register)
+        ret_values["value"] = self._mb.get_scaled_value(address, scale_factor, register)
         ret_values["unit"] = scale_factor
 
         return ret_values
@@ -123,26 +120,30 @@ class BatteryStatus(ChargeControllerStatus):
         is_limit -- limit the number of getting status
 
         >>> bat.get_params() == [
-        ...     (38, 'V', 'Battery Voltage', 1),
-        ...     (51, 'V', 'Target Voltage', 1),
-        ...     (39, 'A', 'Charge Current', 1)]
+        ...     (38, "V", "Battery Voltage", 1),
+        ...     (51, "V", "Target Voltage", 1),
+        ...     (39, "A", "Charge Current", 1),
+        ... ]
         True
         >>> bat.get_params(True) == [
-        ...     (38, 'V', 'Battery Voltage', 1),
-        ...     (51, 'V', 'Target Voltage', 1),
-        ...     (39, 'A', 'Charge Current', 1)]
+        ...     (38, "V", "Battery Voltage", 1),
+        ...     (51, "V", "Target Voltage", 1),
+        ...     (39, "A", "Charge Current", 1),
+        ... ]
         True
         >>> bat.get_params(False) == [
-        ...     (38, 'V', 'Battery Voltage', 1),
-        ...     (51, 'V', 'Target Voltage', 1),
-        ...     (39, 'A', 'Charge Current', 1),
-        ...     (58, 'W', 'Output Power', 1)]
+        ...     (38, "V", "Battery Voltage", 1),
+        ...     (51, "V", "Target Voltage", 1),
+        ...     (39, "A", "Charge Current", 1),
+        ...     (58, "W", "Output Power", 1),
+        ... ]
         True
         """
         params = [
             ModbusRegisterTable.BATTERY_VOLTAGE,
             ModbusRegisterTable.TARGET_REGULATION_VOLTAGE,
-            ModbusRegisterTable.CHARGING_CURRENT]
+            ModbusRegisterTable.CHARGING_CURRENT,
+        ]
 
         if not is_limit:
             params.append(ModbusRegisterTable.OUTPUT_POWER)
@@ -174,31 +175,29 @@ class SolarArrayStatus(ChargeControllerStatus):
         Keyword arguments:
         is_limit -- limit the number of getting status
 
-        >>> array.get_params() == [
-        ...    (27, 'V', 'Array Voltage', 1),
-        ...    (29, 'A', 'Array Current', 1)]
+        >>> array.get_params() == [(27, "V", "Array Voltage", 1), (29, "A", "Array Current", 1)]
         True
-        >>> array.get_params(True) == [
-        ...    (27, 'V', 'Array Voltage', 1),
-        ...    (29, 'A', 'Array Current', 1)]
+        >>> array.get_params(True) == [(27, "V", "Array Voltage", 1), (29, "A", "Array Current", 1)]
         True
         >>> array.get_params(False) == [
-        ...    (27, 'V', 'Array Voltage', 1),
-        ...    (29, 'A', 'Array Current', 1),
-        ...    (61, "V", "Sweep Vmp", 1),
-        ...    (62, "V", "Sweep Voc", 1),
-        ...    (60, "W", "Sweep Pmax", 1)]
+        ...     (27, "V", "Array Voltage", 1),
+        ...     (29, "A", "Array Current", 1),
+        ...     (61, "V", "Sweep Vmp", 1),
+        ...     (62, "V", "Sweep Voc", 1),
+        ...     (60, "W", "Sweep Pmax", 1),
+        ... ]
         True
         """
-        params = [
-            ModbusRegisterTable.ARRAY_VOLTAGE,
-            ModbusRegisterTable.ARRAY_CURRENT]
+        params = [ModbusRegisterTable.ARRAY_VOLTAGE, ModbusRegisterTable.ARRAY_CURRENT]
 
         if not is_limit:
-            params.extend([
-                ModbusRegisterTable.VMP_LAST_SWEEP,
-                ModbusRegisterTable.VOC_LAST_SWEEP,
-                ModbusRegisterTable.POWER_LAST_SWEEP])
+            params.extend(
+                [
+                    ModbusRegisterTable.VMP_LAST_SWEEP,
+                    ModbusRegisterTable.VOC_LAST_SWEEP,
+                    ModbusRegisterTable.POWER_LAST_SWEEP,
+                ]
+            )
 
         return params
 
@@ -224,23 +223,17 @@ class TemperaturesStatus(ChargeControllerStatus):
         Keyword arguments:
         is_limit -- limit the number of getting status
 
-        >>> temp.get_params() == [
-        ...    (35, 'C', 'Heat Sink Temperature', 1)]
+        >>> temp.get_params() == [(35, "C", "Heat Sink Temperature", 1)]
         True
-        >>> temp.get_params(True) == [
-        ...    (35, 'C', 'Heat Sink Temperature', 1)]
+        >>> temp.get_params(True) == [(35, "C", "Heat Sink Temperature", 1)]
         True
-        >>> temp.get_params(False) == [
-        ...    (35, 'C', 'Heat Sink Temperature', 1),
-        ...    (37, 'C', 'Battery Temperature', 1)]
+        >>> temp.get_params(False) == [(35, "C", "Heat Sink Temperature", 1), (37, "C", "Battery Temperature", 1)]
         True
         """
-        params = [
-            ModbusRegisterTable.HEATSINK_TEMP]
+        params = [ModbusRegisterTable.HEATSINK_TEMP]
 
         if not is_limit:
-            params.append(
-                ModbusRegisterTable.BATTERY_TEMP)
+            params.append(ModbusRegisterTable.BATTERY_TEMP)
 
         return params
 
@@ -268,22 +261,14 @@ class CountersStatus(ChargeControllerStatus):
         Keyword arguments:
         is_limit -- limit the number of getting status
 
-        >>> count.get_params() == (
-        ...    (52, 'Ah', 'Amp Hours', 2),
-        ...    (56, 'kWh', 'Kilowatt Hours', 1))
+        >>> count.get_params() == ((52, "Ah", "Amp Hours", 2), (56, "kWh", "Kilowatt Hours", 1))
         True
-        >>> count.get_params(True) == (
-        ...    (52, 'Ah', 'Amp Hours', 2),
-        ...    (56, 'kWh', 'Kilowatt Hours', 1))
+        >>> count.get_params(True) == ((52, "Ah", "Amp Hours", 2), (56, "kWh", "Kilowatt Hours", 1))
         True
-        >>> count.get_params(False) == (
-        ...    (52, 'Ah', 'Amp Hours', 2),
-        ...    (56, 'kWh', 'Kilowatt Hours', 1))
+        >>> count.get_params(False) == ((52, "Ah", "Amp Hours", 2), (56, "kWh", "Kilowatt Hours", 1))
         True
         """
-        return (
-            ModbusRegisterTable.AH_CHARGE_RESETABLE,
-            ModbusRegisterTable.KWH_CHARGE_RESETABLE)
+        return (ModbusRegisterTable.AH_CHARGE_RESETABLE, ModbusRegisterTable.KWH_CHARGE_RESETABLE)
 
 
 class OperatingConditions(ChargeControllerStatus):
@@ -309,29 +294,26 @@ class OperatingConditions(ChargeControllerStatus):
         Keyword arguments:
         is_limit -- limit the number of getting status
 
-        >>> condition.get_params() == (
-        ...    (49, '', 'LED State', 1),
-        ...    (50, '', 'Charge State', 1))
+        >>> condition.get_params() == ((49, "", "LED State", 1), (50, "", "Charge State", 1))
         True
-        >>> condition.get_params(True) == (
-        ...    (49, '', 'LED State', 1),
-        ...    (50, '', 'Charge State', 1))
+        >>> condition.get_params(True) == ((49, "", "LED State", 1), (50, "", "Charge State", 1))
         True
-        >>> condition.get_params(False) == (
-        ...    (49, '', 'LED State', 1),
-        ...    (50, '', 'Charge State', 1))
+        >>> condition.get_params(False) == ((49, "", "LED State", 1), (50, "", "Charge State", 1))
         True
         """
-        return (
-            ModbusRegisterTable.LED_STATE,
-            ModbusRegisterTable.CHARGE_STATE)
+        return (ModbusRegisterTable.LED_STATE, ModbusRegisterTable.CHARGE_STATE)
 
 
 if __name__ == "__main__":
     import doctest
-    doctest.testmod(verbose=True, extraglobs={
-        "bat": BatteryStatus(None),
-        "array": SolarArrayStatus(None),
-        "temp": TemperaturesStatus(None),
-        "count": CountersStatus(None),
-        "condition": OperatingConditions(None)})
+
+    doctest.testmod(
+        verbose=True,
+        extraglobs={
+            "bat": BatteryStatus(None),
+            "array": SolarArrayStatus(None),
+            "temp": TemperaturesStatus(None),
+            "count": CountersStatus(None),
+            "condition": OperatingConditions(None),
+        },
+    )
