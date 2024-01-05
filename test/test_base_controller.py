@@ -1,16 +1,8 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
-
 import unittest
-try:
-    from unittest.mock import patch
-except:
-    from mock import patch
+from unittest.mock import patch
+
 from tsmppt60_driver.base import ManagementBase
-from tsmppt60_driver.status import BatteryStatus
-from tsmppt60_driver.status import SolarArrayStatus
-from tsmppt60_driver.status import TemperaturesStatus
-from tsmppt60_driver.status import CountersStatus
+from tsmppt60_driver.status import BatteryStatus, CountersStatus, SolarArrayStatus, TemperaturesStatus
 
 
 class DummyRequest:
@@ -29,12 +21,11 @@ class DummyResponse:
 
 
 class TestChargeControllerStatus(unittest.TestCase):
-    """ Test case for ChargeControllerStatus. """
+    """Test case for ChargeControllerStatus."""
 
     @classmethod
     def _gen_url_parm(cls, addr, reg):
-        return 'ID=1&F=4&AHI={}&ALO={}&RHI={}&RLO={}' \
-            .format(addr >> 8, addr & 255, reg >> 8, reg & 255)
+        return "ID=1&F=4&AHI={}&ALO={}&RHI={}&RLO={}".format(addr >> 8, addr & 255, reg >> 8, reg & 255)
 
     @classmethod
     @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
@@ -43,10 +34,13 @@ class TestChargeControllerStatus(unittest.TestCase):
             mb_url_parm = str(url).split("?")[-1]
 
             table_scaling = {
+                cls._gen_url_parm(0x0000, 2): "1,4,4,0,180,0,0",  # VOLTAGE_SCALING
+                cls._gen_url_parm(0x0002, 2): "1,4,4,0,80,0,0",  # CURRENT_SCALING
                 cls._gen_url_parm(0x0000, 1): "1,4,2,0,180",  # VOLTAGE_SCALING_HIGH
-                cls._gen_url_parm(0x0001, 1): "1,4,2,0,0",    # VOLTAGE_SCALING_LOW
-                cls._gen_url_parm(0x0002, 1): "1,4,2,0,80",   # CURRENT_SCALING_HIGH
-                cls._gen_url_parm(0x0003, 1): "1,4,2,0,0"}    # CURRENT_SCALING_LOW
+                cls._gen_url_parm(0x0001, 1): "1,4,2,0,0",  # VOLTAGE_SCALING_LOW
+                cls._gen_url_parm(0x0002, 1): "1,4,2,0,80",  # CURRENT_SCALING_HIGH
+                cls._gen_url_parm(0x0003, 1): "1,4,2,0,0",
+            }  # CURRENT_SCALING_LOW
 
             text = table_scaling[mb_url_parm]
             return DummyResponse(url, text)
@@ -83,13 +77,9 @@ class TestChargeControllerStatus(unittest.TestCase):
 
         patched_get.side_effect = _requests_get
 
-        expected_value = {
-            "group": "Battery",
-            "label": "Battery Voltage",
-            "value": round(24.78515625, 2),
-            "unit": "V"}
+        expected_value = {"group": "Battery", "label": "Battery Voltage", "value": round(24.78515625, 2), "unit": "V"}
 
-        value = self._bat.get_status(address, 'V', 'Battery Voltage', register)
+        value = self._bat.get_status(address, "V", "Battery Voltage", register)
 
         self.assertEqual(set(expected_value.items()), set(value.items()))
 
@@ -110,11 +100,7 @@ class TestChargeControllerStatus(unittest.TestCase):
 
         patched_get.side_effect = _requests_get
 
-        expected_value = {
-            "group": "Battery",
-            "label": "Target Voltage",
-            "value": 0.0,
-            "unit": "V"}
+        expected_value = {"group": "Battery", "label": "Target Voltage", "value": 0.0, "unit": "V"}
 
         value = self._bat.get_status(address, "V", "Target Voltage", register)
 

@@ -294,11 +294,11 @@ class OperatingConditions(ChargeControllerStatus):
         Keyword arguments:
         is_limit -- limit the number of getting status
 
-        >>> condition.get_params() == ((49, "", "LED State", 1), (50, "", "Charge State", 1))
+        >>> condition.get_params() == ((49, "Numbers", "LED State", 1), (50, "Numbers", "Charge State", 1))
         True
-        >>> condition.get_params(True) == ((49, "", "LED State", 1), (50, "", "Charge State", 1))
+        >>> condition.get_params(True) == ((49, "Numbers", "LED State", 1), (50, "Numbers", "Charge State", 1))
         True
-        >>> condition.get_params(False) == ((49, "", "LED State", 1), (50, "", "Charge State", 1))
+        >>> condition.get_params(False) == ((49, "Numbers", "LED State", 1), (50, "Numbers", "Charge State", 1))
         True
         """
         return (ModbusRegisterTable.LED_STATE, ModbusRegisterTable.CHARGE_STATE)

@@ -1,11 +1,6 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
-
 import unittest
-try:
-    from unittest.mock import patch
-except:
-    from mock import patch
+from unittest.mock import patch
+
 import tsmppt60_driver
 from tsmppt60_driver.base import ModbusRegisterTable
 
@@ -41,17 +36,21 @@ class TestMb(unittest.TestCase):
     def _to_url_params(cls, modbus_register):
         addr = int(modbus_register[0])
         reg = int(modbus_register[-1])
-        return 'ID=1&F=4&AHI={}&ALO={}&RHI={}&RLO={}' \
-            .format(str(addr >> 8), str(addr & 255), str(reg >> 8), str(reg & 255))
+        return "ID=1&F=4&AHI={}&ALO={}&RHI={}&RLO={}".format(
+            str(addr >> 8), str(addr & 255), str(reg >> 8), str(reg & 255)
+        )
 
     @classmethod
     @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
     def setUpClass(cls, patched_get):
         cls._dummy_table_scaling = {
+            cls._to_url_params(ModbusRegisterTable.VOLTAGE_SCALING): "1,4,4,0,180,0,0",
+            cls._to_url_params(ModbusRegisterTable.CURRENT_SCALING): "1,4,4,0,80,0,0",
             cls._to_url_params(ModbusRegisterTable.VOLTAGE_SCALING_HIGH): "1,4,2,0,180",
             cls._to_url_params(ModbusRegisterTable.VOLTAGE_SCALING_LOW): "1,4,2,0,0",
             cls._to_url_params(ModbusRegisterTable.CURRENT_SCALING_HIGH): "1,4,2,0,80",
-            cls._to_url_params(ModbusRegisterTable.CURRENT_SCALING_LOW): "1,4,2,0,0"}
+            cls._to_url_params(ModbusRegisterTable.CURRENT_SCALING_LOW): "1,4,2,0,0",
+        }
 
         cls._dummy_table_response = {
             cls._to_url_params(ModbusRegisterTable.BATTERY_VOLTAGE): "1,4,2,17,160",  # 24.78515625
@@ -66,10 +65,11 @@ class TestMb(unittest.TestCase):
             cls._to_url_params(ModbusRegisterTable.HEATSINK_TEMP): "1,4,2,0,7",  # 7.0
             cls._to_url_params(ModbusRegisterTable.BATTERY_TEMP): "1,4,2,0,25",  # 25.0
             cls._to_url_params(ModbusRegisterTable.AH_CHARGE_RESETABLE): "1,4,4,0,2,231,134",  # 19034.2
-            cls._to_url_params(ModbusRegisterTable.KWH_CHARGE_RESETABLE): "1,4,2,1,4"}  # 260.0
+            cls._to_url_params(ModbusRegisterTable.KWH_CHARGE_RESETABLE): "1,4,2,1,4",
+        }  # 260.0
 
         patched_get.side_effect = cls._dummy_requests_get
-        cls._mb = tsmppt60_driver.base.ManagementBase('dummy.co.jp')
+        cls._mb = tsmppt60_driver.base.ManagementBase("dummy.co.jp")
 
     @classmethod
     def tearDownClass(cls):
@@ -86,21 +86,18 @@ class TestMb(unittest.TestCase):
         patched_get.side_effect = self._dummy_requests_get
 
         key = self._to_url_params(ModbusRegisterTable.VOLTAGE_SCALING_HIGH)
-        elems = str(self._dummy_table_scaling[key]).split(',')
+        elems = str(self._dummy_table_scaling[key]).split(",")
         high = int(elems[3]) << 8 | int(elems[4])
         # "1,4,2,0,180"
 
         key = self._to_url_params(ModbusRegisterTable.VOLTAGE_SCALING_LOW)
-        elems = str(self._dummy_table_scaling[key]).split(',')
+        elems = str(self._dummy_table_scaling[key]).split(",")
         low = int(elems[3]) << 8 | int(elems[4])
         # "1,4,2,0,10"
 
         # V_PU lo must be shifted by 16 (divided by 2^16) and then added to V_PU hi
         expected_value = float(high) + float(low) / pow(2, 16)
-
-        v_scaled = self._mb._compute_scaler(
-            ModbusRegisterTable.VOLTAGE_SCALING_HIGH[0],
-            ModbusRegisterTable.VOLTAGE_SCALING_LOW[0])
+        v_scaled = self._mb._compute_scaler(ModbusRegisterTable.VOLTAGE_SCALING)
 
         self.assertEqual(expected_value, v_scaled)
 
@@ -109,21 +106,18 @@ class TestMb(unittest.TestCase):
         patched_get.side_effect = self._dummy_requests_get
 
         key = self._to_url_params(ModbusRegisterTable.CURRENT_SCALING_HIGH)
-        elems = str(self._dummy_table_scaling[key]).split(',')
+        elems = str(self._dummy_table_scaling[key]).split(",")
         high = int(elems[3]) << 8 | int(elems[4])
         # "1,4,2,0,180"
 
         key = self._to_url_params(ModbusRegisterTable.CURRENT_SCALING_LOW)
-        elems = str(self._dummy_table_scaling[key]).split(',')
+        elems = str(self._dummy_table_scaling[key]).split(",")
         low = int(elems[3]) << 8 | int(elems[4])
         # "1,4,2,0,10"
 
         # V_PU lo must be shifted by 16 (divided by 2^16) and then added to V_PU hi
         expected_value = float(high) + float(low) / pow(2, 16)
-
-        i_scaled = self._mb._compute_scaler(
-            ModbusRegisterTable.CURRENT_SCALING_HIGH[0],
-            ModbusRegisterTable.CURRENT_SCALING_LOW[0])
+        i_scaled = self._mb._compute_scaler(ModbusRegisterTable.CURRENT_SCALING)
 
         self.assertEqual(expected_value, i_scaled)
 
@@ -134,9 +128,8 @@ class TestMb(unittest.TestCase):
         modbus_register = ModbusRegisterTable.BATTERY_VOLTAGE
 
         val = self._mb.get_scaled_value(
-            address=modbus_register[0],
-            scale_factor=modbus_register[1],
-            register=modbus_register[-1])
+            address=modbus_register[0], scale_factor=modbus_register[1], register=modbus_register[-1]
+        )
 
         self.assertEqual(round(24.78515625, 2), val)
 
@@ -147,9 +140,8 @@ class TestMb(unittest.TestCase):
         modbus_register = ModbusRegisterTable.CHARGING_CURRENT
 
         val = self._mb.get_scaled_value(
-            address=modbus_register[0],
-            scale_factor=modbus_register[1],
-            register=modbus_register[-1])
+            address=modbus_register[0], scale_factor=modbus_register[1], register=modbus_register[-1]
+        )
 
         self.assertEqual(round(-0.21484375, 2), val)
 
@@ -160,9 +152,8 @@ class TestMb(unittest.TestCase):
         modbus_register = ModbusRegisterTable.OUTPUT_POWER
 
         val = self._mb.get_scaled_value(
-            address=modbus_register[0],
-            scale_factor=modbus_register[1],
-            register=modbus_register[-1])
+            address=modbus_register[0], scale_factor=modbus_register[1], register=modbus_register[-1]
+        )
 
         self.assertEqual(0.0, val)
 
@@ -173,9 +164,8 @@ class TestMb(unittest.TestCase):
         modbus_register = ModbusRegisterTable.AH_CHARGE_RESETABLE
 
         val = self._mb.get_scaled_value(
-            address=modbus_register[0],
-            scale_factor=modbus_register[1],
-            register=modbus_register[-1])
+            address=modbus_register[0], scale_factor=modbus_register[1], register=modbus_register[-1]
+        )
 
         self.assertEqual(19034.2, val)
 
@@ -186,12 +176,11 @@ class TestMb(unittest.TestCase):
         modbus_register = ModbusRegisterTable.KWH_CHARGE_RESETABLE
 
         val = self._mb.get_scaled_value(
-            address=modbus_register[0],
-            scale_factor=modbus_register[1],
-            register=modbus_register[-1])
+            address=modbus_register[0], scale_factor=modbus_register[1], register=modbus_register[-1]
+        )
 
         self.assertEqual(260.0, val)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
