@@ -28,7 +28,7 @@ class TestChargeControllerStatus(unittest.TestCase):
         return "ID=1&F=4&AHI={}&ALO={}&RHI={}&RLO={}".format(addr >> 8, addr & 255, reg >> 8, reg & 255)
 
     @classmethod
-    @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
+    @patch("tsmppt60_driver.base.requests.get")
     def setUpClass(cls, patched_get):
         def _requests_get(url, timeout):
             mb_url_parm = str(url).split("?")[-1]
@@ -63,7 +63,7 @@ class TestChargeControllerStatus(unittest.TestCase):
     def tearDown(self):
         pass
 
-    @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
+    @patch("tsmppt60_driver.base.requests.get")
     def test_get_battery_voltage(self, patched_get):
         address = 0x0026
         register = 1
@@ -86,7 +86,7 @@ class TestChargeControllerStatus(unittest.TestCase):
         # (39, 'A', 'Charge Current', 1)
         # (58, 'W', 'Output Power', 1)
 
-    @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
+    @patch("tsmppt60_driver.base.requests.get")
     def test_get_target_voltage(self, patched_get):
         address = 0x0033
         register = 1
@@ -106,11 +106,11 @@ class TestChargeControllerStatus(unittest.TestCase):
 
         self.assertEqual(set(expected_value.items()), set(value.items()))
 
-    @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
+    @patch("tsmppt60_driver.base.requests.get")
     def test_get_output_power(self, patched_get):
         patched_get.return_value = "1,4,2,0,0"  # 0.0
 
-    @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
+    @patch("tsmppt60_driver.base.requests.get")
     def test_get_battery_temperature(self, patched_get):
         patched_get.return_value = "1,4,2,0,25"  # 25.0
 

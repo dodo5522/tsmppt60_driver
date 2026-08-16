@@ -1,10 +1,13 @@
-[tool.poetry]
+[project]
 name = "tsmppt60-driver"
 version = "0.2.1"
 description = "Python module to get status of your solar charge controller TS-MPPT-60."
-authors = ["Takashi Ando <dodo5522@gmail.com>"]
+authors = [
+    { name = "Takashi Ando", email = "odo5522@gmail.com" },
+]
 license = "GPLv2"
 readme = "README.md"
+requires-python = ">=3.11,<3.15"
 packages = [{include = "tsmppt60_driver"}]
 homepage = "https://github.com/dodo5522/tsmppt60_driver"
 classifiers = [
@@ -18,16 +21,17 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
     "Topic :: System :: Hardware :: Hardware Drivers",
 ]
+dependencies = [
+    "requests~=2.32",
+]
 
-[tool.poetry.dependencies]
-python = "^3.11"
-requests = "^2.32.0"
-
-[tool.poetry.group.dev.dependencies]
-pre-commit = "3.5.0"
-pytest = "^7.4.4"
-pytest-mock = "^3.12.0"
-ruff = "^0.1.11"
+[dependency-groups]
+dev = [
+    "pre-commit~=3.8",
+    "pytest~=9.1",
+    "pytest-mock~=3.12",
+    "ruff~=0.16.3",
+]
 
 [tool.ruff]
 target-version = "py311"
