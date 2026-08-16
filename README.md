@@ -1,7 +1,3 @@
-# Status
-
-[![Build Status](https://travis-ci.org/dodo5522/tsmppt60_driver.svg)](https://travis-ci.org/dodo5522/tsmppt60_driver) [![Coverage Status](https://coveralls.io/repos/dodo5522/tsmppt60_driver/badge.svg?branch=master&service=github)](https://coveralls.io/github/dodo5522/tsmppt60_driver?branch=master)
-
 # TS-MPPT-60 driver module
 
 This is python driver module to get the following status of TS-MPPT-60.
@@ -26,8 +22,9 @@ This is python driver module to get the following status of TS-MPPT-60.
 
 # How to install
 
-1. ./setup.py build
-2. ./setup.py install
+```bash
+pip install tsmppt60-driver
+```
 
 # How to use
 
