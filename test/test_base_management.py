@@ -41,7 +41,7 @@ class TestMb(unittest.TestCase):
         )
 
     @classmethod
-    @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
+    @patch("tsmppt60_driver.base.requests.get")
     def setUpClass(cls, patched_get):
         cls._dummy_table_scaling = {
             cls._to_url_params(ModbusRegisterTable.VOLTAGE_SCALING): "1,4,4,0,180,0,0",
@@ -81,7 +81,7 @@ class TestMb(unittest.TestCase):
     def tearDown(self):
         pass
 
-    @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
+    @patch("tsmppt60_driver.base.requests.get")
     def test_compute_scaler_voltage(self, patched_get):
         patched_get.side_effect = self._dummy_requests_get
 
@@ -101,7 +101,7 @@ class TestMb(unittest.TestCase):
 
         self.assertEqual(expected_value, v_scaled)
 
-    @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
+    @patch("tsmppt60_driver.base.requests.get")
     def test_compute_scaler_current(self, patched_get):
         patched_get.side_effect = self._dummy_requests_get
 
@@ -121,7 +121,7 @@ class TestMb(unittest.TestCase):
 
         self.assertEqual(expected_value, i_scaled)
 
-    @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
+    @patch("tsmppt60_driver.base.requests.get")
     def test_get_scaled_value_V(self, patched_get):
         patched_get.side_effect = self._dummy_requests_get
 
@@ -133,7 +133,7 @@ class TestMb(unittest.TestCase):
 
         self.assertEqual(round(24.78515625, 2), val)
 
-    @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
+    @patch("tsmppt60_driver.base.requests.get")
     def test_get_scaled_value_A(self, patched_get):
         patched_get.side_effect = self._dummy_requests_get
 
@@ -145,7 +145,7 @@ class TestMb(unittest.TestCase):
 
         self.assertEqual(round(-0.21484375, 2), val)
 
-    @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
+    @patch("tsmppt60_driver.base.requests.get")
     def test_get_scaled_value_W(self, patched_get):
         patched_get.side_effect = self._dummy_requests_get
 
@@ -157,7 +157,7 @@ class TestMb(unittest.TestCase):
 
         self.assertEqual(0.0, val)
 
-    @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
+    @patch("tsmppt60_driver.base.requests.get")
     def test_get_scaled_value_Ah(self, patched_get):
         patched_get.side_effect = self._dummy_requests_get
 
@@ -169,7 +169,7 @@ class TestMb(unittest.TestCase):
 
         self.assertEqual(19034.2, val)
 
-    @patch("tsmppt60_driver.base.requests.get", auto_spec=True)
+    @patch("tsmppt60_driver.base.requests.get")
     def test_get_scaled_value_kWh(self, patched_get):
         patched_get.side_effect = self._dummy_requests_get
 

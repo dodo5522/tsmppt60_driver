@@ -1,10 +1,13 @@
-[tool.poetry]
+[project]
 name = "tsmppt60-driver"
-version = "0.2.1"
+version = "0.2.2"
 description = "Python module to get status of your solar charge controller TS-MPPT-60."
-authors = ["Takashi Ando <dodo5522@gmail.com>"]
+authors = [
+    { name = "Takashi Ando", email = "odo5522@gmail.com" },
+]
 license = "GPLv2"
 readme = "README.md"
+requires-python = ">=3.11,<3.15"
 packages = [{include = "tsmppt60_driver"}]
 homepage = "https://github.com/dodo5522/tsmppt60_driver"
 classifiers = [
@@ -12,26 +15,26 @@ classifiers = [
     "Environment :: Console",
     "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
     "Natural Language :: English",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: System :: Hardware :: Hardware Drivers",
 ]
+dependencies = [
+    "requests~=2.32",
+]
 
-[tool.poetry.dependencies]
-python = "^3.8"
-requests = "^2.31.0"
-
-[tool.poetry.group.dev.dependencies]
-pre-commit = "3.5.0"
-pytest = "^7.4.4"
-pytest-mock = "^3.12.0"
-ruff = "^0.1.11"
+[dependency-groups]
+dev = [
+    "pre-commit~=3.8",
+    "pytest~=9.1",
+    "pytest-mock~=3.12",
+    "ruff~=0.16.3",
+]
 
 [tool.ruff]
-target-version = "py38"
+target-version = "py311"
 line-length = 120
 extend-exclude = [
   "firebase",
