@@ -2,7 +2,8 @@ import unittest
 from unittest.mock import patch
 
 from tsmppt60_driver.base import ManagementBase
-from tsmppt60_driver.status import BatteryStatus, CountersStatus, SolarArrayStatus, TemperaturesStatus
+from tsmppt60_driver.controller import BatteryStatus, CountersStatus, SolarArrayStatus, TemperaturesStatus
+from tsmppt60_driver.hal import RegisterMap
 
 
 class DummyRequest:
@@ -28,11 +29,9 @@ class TestChargeControllerStatus(unittest.TestCase):
         return "ID=1&F=4&AHI={}&ALO={}&RHI={}&RLO={}".format(addr >> 8, addr & 255, reg >> 8, reg & 255)
 
     @classmethod
-    @patch("tsmppt60_driver.base.requests.get")
+    @patch("tsmppt60_driver.ManagementBase._get")
     def setUpClass(cls, patched_get):
-        def _requests_get(url, timeout):
-            mb_url_parm = str(url).split("?")[-1]
-
+        def _requests_get(query_params: list[str]) -> str:
             table_scaling = {
                 cls._gen_url_parm(0x0000, 2): "1,4,4,0,180,0,0",  # VOLTAGE_SCALING
                 cls._gen_url_parm(0x0002, 2): "1,4,4,0,80,0,0",  # CURRENT_SCALING
@@ -41,13 +40,11 @@ class TestChargeControllerStatus(unittest.TestCase):
                 cls._gen_url_parm(0x0002, 1): "1,4,2,0,80",  # CURRENT_SCALING_HIGH
                 cls._gen_url_parm(0x0003, 1): "1,4,2,0,0",
             }  # CURRENT_SCALING_LOW
-
-            text = table_scaling[mb_url_parm]
-            return DummyResponse(url, text)
+            return table_scaling["&".join(query_params)]
 
         patched_get.side_effect = _requests_get
 
-        mb = ManagementBase("dummy.uribou.mydns.jp")
+        mb = ManagementBase("dummy.uribou.mydns.jp", port=80)
         cls._bat = BatteryStatus(mb)
         cls._panel = SolarArrayStatus(mb)
         cls._temp = TemperaturesStatus(mb)
@@ -63,54 +60,55 @@ class TestChargeControllerStatus(unittest.TestCase):
     def tearDown(self):
         pass
 
-    @patch("tsmppt60_driver.base.requests.get")
+    @patch("tsmppt60_driver.ManagementBase._get")
     def test_get_battery_voltage(self, patched_get):
-        address = 0x0026
-        register = 1
+        modbus_register = RegisterMap.BATTERY_VOLTAGE
 
-        def _requests_get(url, timeout):
-            mb_url_parm = str(url).split("?")[-1]
-
-            self.assertEqual(self._gen_url_parm(address, register), mb_url_parm)  # BATTERY_VOLTAGE
-
-            return DummyResponse(url, "1,4,2,17,160")  # 24.78515625
+        def _requests_get(query_params: list[str]) -> str:
+            mb_url_parm = "&".join(query_params)
+            self.assertEqual(self._gen_url_parm(modbus_register.address, modbus_register.registers), mb_url_parm)
+            return "1,4,2,17,160"  # 24.78515625
 
         patched_get.side_effect = _requests_get
 
         expected_value = {"group": "Battery", "label": "Battery Voltage", "value": round(24.78515625, 2), "unit": "V"}
 
-        value = self._bat.get_status(address, "V", "Battery Voltage", register)
+        value = self._bat.get_status(
+            modbus_register.address,
+            modbus_register.scale_factor,
+            modbus_register.label,
+            modbus_register.registers,
+        )
 
         self.assertEqual(set(expected_value.items()), set(value.items()))
 
-        # (39, 'A', 'Charge Current', 1)
-        # (58, 'W', 'Output Power', 1)
-
-    @patch("tsmppt60_driver.base.requests.get")
+    @patch("tsmppt60_driver.ManagementBase._get")
     def test_get_target_voltage(self, patched_get):
-        address = 0x0033
-        register = 1
+        modbus_register = RegisterMap.TARGET_REGULATION_VOLTAGE
 
-        def _requests_get(url, timeout):
-            mb_url_parm = str(url).split("?")[-1]
-
-            self.assertEqual(mb_url_parm, self._gen_url_parm(address, register))  # TARGET_REGULATION_VOLTAGE
-
-            return DummyResponse(url, "1,4,2,0,0")  # 0.0
+        def _requests_get(query_params: list[str]) -> str:
+            mb_url_parm = "&".join(query_params)
+            self.assertEqual(mb_url_parm, self._gen_url_parm(modbus_register.address, modbus_register.registers))
+            return "1,4,2,0,0"  # 0.0
 
         patched_get.side_effect = _requests_get
 
         expected_value = {"group": "Battery", "label": "Target Voltage", "value": 0.0, "unit": "V"}
 
-        value = self._bat.get_status(address, "V", "Target Voltage", register)
+        value = self._bat.get_status(
+            modbus_register.address,
+            modbus_register.scale_factor,
+            modbus_register.label,
+            modbus_register.registers,
+        )
 
         self.assertEqual(set(expected_value.items()), set(value.items()))
 
-    @patch("tsmppt60_driver.base.requests.get")
+    @patch("tsmppt60_driver.ManagementBase._get")
     def test_get_output_power(self, patched_get):
         patched_get.return_value = "1,4,2,0,0"  # 0.0
 
-    @patch("tsmppt60_driver.base.requests.get")
+    @patch("tsmppt60_driver.ManagementBase._get")
     def test_get_battery_temperature(self, patched_get):
         patched_get.return_value = "1,4,2,0,25"  # 25.0
 
