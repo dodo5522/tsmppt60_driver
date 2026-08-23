@@ -1,5 +1,5 @@
 from tsmppt60_driver.base import ManagementBase
-from tsmppt60_driver.status import (
+from tsmppt60_driver.controller import (
     BatteryStatus,
     CountersStatus,
     OperatingConditions,
@@ -47,13 +47,14 @@ class SystemStatus(object):
          'Charge State': {'group': 'Condition', 'value': 3, 'unit': ''}}
     """
 
-    def __init__(self, host):
+    def __init__(self, host, *, port: int = 80):
         """Initialize class object.
 
         Keyword arguments:
         host -- TS-MPPT-60 host address like "192.168.1.20"
+        port -- TS-MPPT-60 port number like 80
         """
-        _mb = ManagementBase(host)
+        _mb = ManagementBase(host, port=port)
 
         self._devices = (
             BatteryStatus(_mb),

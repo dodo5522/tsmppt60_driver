@@ -1,89 +1,28 @@
 import logging
+from http.client import HTTPConnection
+from time import sleep
 
-import requests
-
-
-"""TS-MPPT-60 driver's base modules."""
-
-
-class Logger(object):
-    """Logger base class for this module."""
-
-    _FORMAT_LOG_MSG = "%(asctime)s %(name)s %(levelname)s: %(message)s"
-    _FORMAT_LOG_DATE = "%Y/%m/%d %p %l:%M:%S"
-
-    def __init__(self, log_file_path=None, debug=False):
-        """Initialize Logger class object.
-
-        Keyword arguments:
-        log_file_path -- Path to record log file.
-        debug -- If True, logging is enabled.
-        """
-        self.logger = logging.getLogger(type(self).__name__)
-
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter(fmt=self._FORMAT_LOG_MSG, datefmt=self._FORMAT_LOG_DATE)
-        handler.setFormatter(formatter)
-        self.logger.addHandler(handler)
-
-        if log_file_path:
-            handler = logging.FileHandler(log_file_path, mode="a")
-            handler.setFormatter(formatter)
-            self.logger.addHandler(handler)
-
-        if debug:
-            self.logger.setLevel(logging.DEBUG)
-        else:
-            self.logger.setLevel(logging.INFO)
+from tsmppt60_driver.hal import Register, RegisterMap, RegisterValue
 
 
-class ModbusRegisterTable(object):
-    """MODBUS register settings table."""
-
-    VOLTAGE_SCALING_HIGH = (0x0000, "", "Voltage Scaling High", 1)
-    VOLTAGE_SCALING_LOW = (0x0001, "", "Voltage Scaling Low", 1)
-    CURRENT_SCALING_HIGH = (0x0002, "", "Current Scaling High", 1)
-    CURRENT_SCALING_LOW = (0x0003, "", "Current Scaling Low", 1)
-    VOLTAGE_SCALING = (0x0000, "", "Voltage Scaling", 2)
-    CURRENT_SCALING = (0x0002, "", "Current Scaling", 2)
-    SOFTWARE_VERSION = (0x0004, "Numbers", "Software Version", 1)
-
-    BATTERY_VOLTAGE = (0x0026, "V", "Battery Voltage", 1)
-    CHARGING_CURRENT = (0x0027, "A", "Charge Current", 1)
-    TARGET_REGULATION_VOLTAGE = (0x0033, "V", "Target Voltage", 1)
-    OUTPUT_POWER = (0x003A, "W", "Output Power", 1)
-    ARRAY_VOLTAGE = (0x001B, "V", "Array Voltage", 1)
-    ARRAY_CURRENT = (0x001D, "A", "Array Current", 1)
-    VMP_LAST_SWEEP = (0x003D, "V", "Sweep Vmp", 1)
-    VOC_LAST_SWEEP = (0x003E, "V", "Sweep Voc", 1)
-    POWER_LAST_SWEEP = (0x003C, "W", "Sweep Pmax", 1)
-    HEATSINK_TEMP = (0x0023, "C", "Heat Sink Temperature", 1)
-    BATTERY_TEMP = (0x0025, "C", "Battery Temperature", 1)
-    AH_CHARGE_RESETABLE = (0x0034, "Ah", "Amp Hours", 2)
-    KWH_CHARGE_RESETABLE = (0x0038, "kWh", "Kilowatt Hours", 1)
-
-    LED_STATE = (0x0031, "Numbers", "LED State", 1)
-    CHARGE_STATE = (0x0032, "Numbers", "Charge State", 1)
+"""
+TS-MPPT-60 driver's base modules.
+"""
 
 
-class ManagementBase(object):
-    """Class to get raw data from TS-MPPT-60. MODBUS ID is fixed to 1 as written on data sheet TSMPPT.APP_.Modbus.EN_.10.2.pdf.
-
-    Keyword arguments:
-    host -- host name like dummy.co.jp
-    cgi -- cgi script file name
-    debug -- debug message output is enabled if True
-    """
-
+class ManagementBase:
     _ID_MODBUS = 0x01
 
-    def __init__(self, host, cgi="MBCSV.cgi", debug=False):
-        """Initialize class object.
+    def __init__(self, host: str, port: int, *, cgi: str = "MBCSV.cgi", timeout: int = 5, debug: bool = False):
+        """Class to get raw data from TS-MPPT-60. MODBUS ID is fixed to 1 as written on data sheet TSMPPT.APP_.Modbus.EN_.10.2.pdf.
 
-        Keyword arguments:
-        host -- Host address like "192.168.1.20" of TS-MPPT-60 live view
-        cgi -- CGI file name to get the information
-        debug -- If True, logging is enabled.
+        Args:
+            host: Host address like "192.168.1.20" of TS-MPPT-60 live view
+            port: Port number like 80 of TS-MPPT-60 live view
+        Keyword Args:
+            cgi: CGI file name to get the information
+            timeout: Connection timeout seconds
+            debug: If True, logging is enabled.
         """
         self._logger = logging.getLogger(type(self).__name__)
         self._logger.addHandler(logging.StreamHandler())
@@ -91,66 +30,81 @@ class ManagementBase(object):
         if debug:
             self._logger.setLevel(logging.DEBUG)
 
-        self._url = "http://" + host + "/" + cgi
-        self._vscale = self._compute_scaler(ModbusRegisterTable.VOLTAGE_SCALING)
-        self._iscale = self._compute_scaler(ModbusRegisterTable.CURRENT_SCALING)
+        self._connection = HTTPConnection(host, port=port, timeout=timeout)
+        self._endpoint = f"/{cgi}"
+        self._voltage_scale = self._compute_scaler(RegisterMap.VOLTAGE_SCALING)
+        self._current_scale = self._compute_scaler(RegisterMap.CURRENT_SCALING)
 
-    def _get(self, addr, reg, mbid=_ID_MODBUS, field=4):
-        """Get and return raw data string like "1,4,1,1,1" against MBID, Address, Register, and Field.
+    def _get(self, params: list[str], *, retries: int = 3, initial_wait: int = 1) -> str:
+        """Get response from the specified TS-MPPT-60.
 
-        Keyword arguments:
-        addr -- Address to get information
-        reg -- Register to get information
-        mbid -- MBID
-        field -- Field to get information
-
-        >>> mb._get(addr=0x0000, reg=1)
-        '1,4,2,0,0'
-        >>> mb._get(addr=0x0001, reg=1)
-        '1,4,2,0,0'
+        Args:
+            params: Query parameters list like ["ID=1", "F=..."]
+        Keyword Args:
+            retries: Max retry if failed to get
+            initial_wait: Initial wait time of second if failed to get
+        Returns:
+            Read modbus response string
         """
-        params = []
-        params.append("ID=" + str(mbid))
-        params.append("F=" + str(field))
-        params.append("AHI=" + str(addr >> 8))
-        params.append("ALO=" + str(addr & 255))
-        params.append("RHI=" + str(reg >> 8))
-        params.append("RLO=" + str(reg & 255))
+        read_text = ""
+        wait_sec = initial_wait
 
-        res = requests.get("{0}?{1}".format(self._url, "&".join(params)), timeout=(5, 15))
+        while retries:
+            self._connection.request("GET", f"{self._endpoint}?{'&'.join(params)}")
+            response = self._connection.getresponse()
 
-        return res.text
+            if response.status != 200:
+                sleep(wait_sec)
+                retries -= 1
+                wait_sec *= 2
+                continue
 
-    def _read_modbus(self, address, register, mbid=_ID_MODBUS):
-        """Read and return the value string with short integer (ex. 16bit value) against MBID, Address, and Register.
+            read_text = response.read().decode("ASCII")
+            break
 
-        Keyword arguments:
-        address -- Address to get information
-        register -- Register to get information
-        mbid -- MBID
+        return read_text
 
-        >>> mb._read_modbus(0x0000, 1)
-        [0]
-        >>> mb._read_modbus(0x0001, 1)
-        [0]
+    def _get_register_values(self, address: int, registers: int, *, mb_id: int = _ID_MODBUS) -> tuple[int, ...]:
+        """Read values with short integer (ex. 16bit value) against MBID, Address, and Register.
+
+        Args:
+            address: Address to get information
+            registers: Register to get information
+        Keyword Args:
+            mb_id: MBID
+        Returns:
+            Integer part (HI value) and fractional part (LO value) if got 2 values.
+            Integer value if got a value.
+
+        >>> mb._get_register_values(0x0000, 1)
+        (0, 0)
         """
-        raw_value_str = self._get(address, register, mbid)
-        raw_values = [int(v) for v in raw_value_str.split(",")]
-        idx_max = raw_values[2]
-        raw_values = raw_values[3:]
+
+        reg = RegisterValue.new(
+            self._get(
+                [
+                    "ID=" + str(mb_id),
+                    "F=4",
+                    "AHI=" + str(address >> 8),
+                    "ALO=" + str(address & 255),
+                    "RHI=" + str(registers >> 8),
+                    "RLO=" + str(registers & 255),
+                ]
+            )
+        )
+        short_values = []
+
         idx = 0
-        ret = []
-
-        while idx < idx_max:
-            ret_short = raw_values[idx] << 8
+        while idx < len(reg.values):
+            short_value = reg.values[idx] << 8
             idx += 1
-            ret_short += raw_values[idx]
+            short_value += reg.values[idx]
             idx += 1
-            ret.append(ret_short)
+            short_values.append(short_value)
 
-        return ret
+        return tuple(short_values)
 
-    def _compute_scaler(self, param):
+    def _compute_scaler(self, reg: Register) -> float:
         """Compute and return the voltage/current scaler as written on data sheet page 8 or 25.
         This will be called only once when initializing this object.
 
@@ -164,32 +118,34 @@ class ManagementBase(object):
         V_PU lo must be shifted by 16 (divided by 2^16)
         and then added to V_PU hi Vscaling = 78 + 934/65536 = 78.01425
 
-        Keyword arguments:
-        param -- register to get a value
-        >>> mb._compute_scaler(ModbusRegisterTable.VOLTAGE_SCALING)
+        Keyword Args:
+            reg: register to get a value
+        Returns:
+            Computed value
+
+        >>> mb._compute_scaler(RegisterMap.VOLTAGE_SCALING)
         0.0
-        >>> mb._compute_scaler(ModbusRegisterTable.CURRENT_SCALING)
+        >>> mb._compute_scaler(RegisterMap.CURRENT_SCALING)
         0.0
         """
-        values = self._read_modbus(param[0], param[3])
+        values = self._get_register_values(reg.address, reg.registers)
         return float(values[0]) + (float(values[1]) / pow(2, 16))
 
-    def get_raw_value(self, address, register):
+    def get_value(self, address: int, register: int):
         """Return a raw value against address got from TS-MPPT-60.
 
-        Keyword arguments:
-        address -- address to get a value
-        register -- register to get a value
-
+        Args:
+            address: address to get a value
+            register: register to get a value
         Returns:
             Raw value as integer type.
 
-        >>> mb.get_raw_value(0x0026, 1)
+        >>> mb.get_value(0x0026, 1)
         0
-        >>> mb.get_raw_value(0x0027, 1)
+        >>> mb.get_value(0x0027, 1)
         0
         """
-        values = self._read_modbus(address, register)
+        values = self._get_register_values(address, register)
 
         if register > 1:
             raw_value = (values[0] << 16) | (values[1] & 0xFFFF)
@@ -202,14 +158,13 @@ class ManagementBase(object):
 
         return raw_value
 
-    def get_scaled_value(self, address, scale_factor, register):
+    def get_scaled_value(self, address: int, scale_factor: str, register: int) -> float:
         """Calculate and return a scaled status value against address got from TS-MPPT-60.
 
-        Keyword arguments:
-        address -- address to get a value
-        scale_factor -- unit string
-        register -- register to get a value
-
+        Args:
+            address: address to get a value
+            scale_factor: unit string
+            register: register to get a value
         Returns:
             Scaled value like 12.4 against your expecting.
 
@@ -218,14 +173,14 @@ class ManagementBase(object):
         >>> mb.get_scaled_value(0x0027, "A", 1)
         0.0
         """
-        raw_value = self.get_raw_value(address, register)
+        raw_value = self.get_value(address, register)
 
         if scale_factor == "V":
-            scaled_value = raw_value * self._vscale / pow(2, 15)
+            scaled_value = raw_value * self._voltage_scale / pow(2, 15)
         elif scale_factor == "A":
-            scaled_value = raw_value * self._iscale / pow(2, 15)
+            scaled_value = raw_value * self._current_scale / pow(2, 15)
         elif scale_factor == "W":
-            wscale = self._iscale * self._vscale
+            wscale = self._current_scale * self._voltage_scale
             scaled_value = raw_value * wscale / pow(2, 17)
         elif scale_factor == "Ah":
             scaled_value = raw_value / 10.0
@@ -237,30 +192,7 @@ class ManagementBase(object):
 
 if __name__ == "__main__":
     import doctest
+    from unittest.mock import patch
 
-    try:
-        from unittest.mock import patch
-    except ImportError:
-        from mock import patch
-
-    class DummyRequest(object):
-        """Dummy response class against requests.Response."""
-
-        pass
-
-    class DummyResponse(object):
-        """Dummy response class against requests.Response."""
-
-        pass
-
-    dummy_host = "dummy.co.jp"
-
-    req = DummyRequest()
-    req.url = "http://" + dummy_host + "/dummy.cgi"
-    res = DummyResponse()
-    res.request = req
-    res.text = "1,4,2,0,0"
-
-    with patch("requests.get", returns=res) as _m:
-        _m.return_value = res
-        doctest.testmod(verbose=True, extraglobs={"mb": ManagementBase(host=dummy_host)})
+    with patch.object(ManagementBase, "_get", return_value="1,4,4,0,0,0,0"):
+        doctest.testmod(verbose=True, extraglobs={"mb": ManagementBase(host="dummy.com", port=80)})
