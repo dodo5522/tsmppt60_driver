@@ -1,6 +1,6 @@
 [project]
 name = "tsmppt60-driver"
-version = "0.2.2"
+version = "0.2.3"
 description = "Python module to get status of your solar charge controller TS-MPPT-60."
 authors = [
     { name = "Takashi Ando", email = "dodo5522@gmail.com" },
