@@ -60,11 +60,12 @@ class ChargeControllerStatus(ABC):
 
         return ret_values
 
-    def get_status_all(self, is_limit=True):
+    def get_status_all(self, is_limited: bool = True):
         """
-        Get and return all data against the inherited class's paramter list.
+        Get and return all data against the inherited class's parameter list.
 
-            { "group": "Battery",
+            {
+                "group": "Battery",
                 "label": "Battery Voltage",
                 "value": 12.1,
                 "unit": "V"
@@ -76,19 +77,16 @@ class ChargeControllerStatus(ABC):
                 "unit": "A"
             }
 
-        Keyword arguments:
-        is_limit -- limit the number of getting status
+        Keyword Args:
+            is_limited: limit the number of getting status
         """
-        return [self.get_status(p.address, p.scale_factor, p.label, p.registers) for p in self.get_params(is_limit)]
+        return [self.get_status(p.address, p.scale_factor, p.label, p.registers) for p in self._get_params(is_limited)]
 
     @abstractmethod
-    def get_params(self, is_limit=True) -> list[Register]:
+    def _get_params(self, is_limited: bool) -> list[Register]:
         """Get and return a list of all params of the inherited class's group.
 
-        Keyword arguments:
-        is_limit -- limit the number of getting status
-            ((61, "V", "Sweep Vmp", 1),
-             (62, "V", "Sweep Voc", 1),
-             (60, "W", "Sweep Pmax", 1))
+        Args:
+            is_limited: limit the number of getting status
         """
         raise NotImplementedError()

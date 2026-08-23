@@ -19,23 +19,23 @@ class CountersStatus(ChargeControllerStatus):
         """
         ChargeControllerStatus.__init__(self, mb, "Counter")
 
-    def get_params(self, is_limit=True) -> list[Register]:
+    def _get_params(self, is_limited=True) -> list[Register]:
         """Get and return a list of all params to get the counters. The param is consisted by (address, scale_factor, label, register).
 
         Keyword arguments:
         is_limit -- limit the number of getting status
 
-        >>> count.get_params() == (
+        >>> count._get_params() == (
         ...     Register(address=52, scale_factor="Ah", label="Amp Hours", registers=2),
         ...     Register(address=56, scale_factor="kWh", label="Kilowatt Hours", registers=1),
         ... )
         True
-        >>> count.get_params(True) == (
+        >>> count._get_params(True) == (
         ...     Register(address=52, scale_factor="Ah", label="Amp Hours", registers=2),
         ...     Register(address=56, scale_factor="kWh", label="Kilowatt Hours", registers=1),
         ... )
         True
-        >>> count.get_params(False) == (
+        >>> count._get_params(False) == (
         ...     Register(address=52, scale_factor="Ah", label="Amp Hours", registers=2),
         ...     Register(address=56, scale_factor="kWh", label="Kilowatt Hours", registers=1),
         ... )

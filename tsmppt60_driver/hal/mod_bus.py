@@ -133,10 +133,10 @@ class ModBusScaler(ModBusBase):
         values = self._get_register_values(reg.address, reg.registers)
         return float(values[0]) + (float(values[1]) / pow(2, 16))
 
-    def get_voltage_scaler(self):
+    def get_voltage_scaler(self) -> float:
         return self._get_scaler(RegisterMap.VOLTAGE_SCALING)
 
-    def get_current_scaler(self):
+    def get_current_scaler(self) -> float:
         return self._get_scaler(RegisterMap.CURRENT_SCALING)
 
 
