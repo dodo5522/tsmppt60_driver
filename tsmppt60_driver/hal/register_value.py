@@ -1,9 +1,11 @@
 from dataclasses import dataclass
 from typing import Self
 
+from tsmppt60_driver.hal.base import BaseClass
 
-@dataclass(frozen=True)
-class RegisterValue:
+
+@dataclass(frozen=True, kw_only=True)
+class RegisterValue(BaseClass):
     """MODBUS register value"""
 
     mb_id: int

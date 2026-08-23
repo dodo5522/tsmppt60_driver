@@ -1,8 +1,10 @@
 from dataclasses import dataclass, field
 
+from tsmppt60_driver.hal.base import BaseClass
+
 
 @dataclass(frozen=True, kw_only=True)
-class Register:
+class Register(BaseClass):
     """MODBUS register value"""
 
     address: int
@@ -12,7 +14,7 @@ class Register:
 
 
 @dataclass(frozen=True)
-class RegisterMap:
+class RegisterMap(BaseClass):
     """MODBUS register table for TS-MPPT-60 written on data sheet TSMPPT.APP_.Modbus.EN_.10.2.pdf."""
 
     VOLTAGE_SCALING = Register(address=0x0000, registers=2, label="Voltage Scaling")

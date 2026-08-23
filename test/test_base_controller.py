@@ -1,9 +1,8 @@
 import unittest
 from unittest.mock import patch
 
-from tsmppt60_driver.base import ManagementBase
 from tsmppt60_driver.controller import BatteryStatus, CountersStatus, SolarArrayStatus, TemperaturesStatus
-from tsmppt60_driver.hal import RegisterMap
+from tsmppt60_driver.hal import ModBus, RegisterMap
 
 
 class DummyRequest:
@@ -29,7 +28,7 @@ class TestChargeControllerStatus(unittest.TestCase):
         return "ID=1&F=4&AHI={}&ALO={}&RHI={}&RLO={}".format(addr >> 8, addr & 255, reg >> 8, reg & 255)
 
     @classmethod
-    @patch("tsmppt60_driver.ManagementBase._get")
+    @patch("tsmppt60_driver.ModBus._get")
     def setUpClass(cls, patched_get):
         def _requests_get(query_params: list[str]) -> str:
             table_scaling = {
@@ -44,7 +43,7 @@ class TestChargeControllerStatus(unittest.TestCase):
 
         patched_get.side_effect = _requests_get
 
-        mb = ManagementBase("dummy.uribou.mydns.jp", port=80)
+        mb = ModBus("dummy.uribou.mydns.jp", port=80)
         cls._bat = BatteryStatus(mb)
         cls._panel = SolarArrayStatus(mb)
         cls._temp = TemperaturesStatus(mb)
@@ -60,7 +59,7 @@ class TestChargeControllerStatus(unittest.TestCase):
     def tearDown(self):
         pass
 
-    @patch("tsmppt60_driver.ManagementBase._get")
+    @patch("tsmppt60_driver.ModBus._get")
     def test_get_battery_voltage(self, patched_get):
         modbus_register = RegisterMap.BATTERY_VOLTAGE
 
@@ -82,7 +81,7 @@ class TestChargeControllerStatus(unittest.TestCase):
 
         self.assertEqual(set(expected_value.items()), set(value.items()))
 
-    @patch("tsmppt60_driver.ManagementBase._get")
+    @patch("tsmppt60_driver.ModBus._get")
     def test_get_target_voltage(self, patched_get):
         modbus_register = RegisterMap.TARGET_REGULATION_VOLTAGE
 
@@ -104,11 +103,11 @@ class TestChargeControllerStatus(unittest.TestCase):
 
         self.assertEqual(set(expected_value.items()), set(value.items()))
 
-    @patch("tsmppt60_driver.ManagementBase._get")
+    @patch("tsmppt60_driver.ModBus._get")
     def test_get_output_power(self, patched_get):
         patched_get.return_value = "1,4,2,0,0"  # 0.0
 
-    @patch("tsmppt60_driver.ManagementBase._get")
+    @patch("tsmppt60_driver.ModBus._get")
     def test_get_battery_temperature(self, patched_get):
         patched_get.return_value = "1,4,2,0,25"  # 25.0
 

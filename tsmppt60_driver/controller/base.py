@@ -1,13 +1,13 @@
 import logging
 from abc import ABC, abstractmethod
 
-from tsmppt60_driver.hal import Register
+from tsmppt60_driver.hal import ModBus, Register
 
 
 class ChargeControllerStatus(ABC):
     """Abstract class to get data about charge controller status."""
 
-    def __init__(self, mb, group, debug=False):
+    def __init__(self, mb: ModBus, group: str, debug: bool = False):
         """Initialize class object.
 
         Keyword arguments:
@@ -35,7 +35,7 @@ class ChargeControllerStatus(ABC):
     def __str__(self):
         return self._group
 
-    def get_status(self, address, scale_factor, label, register):
+    def get_status(self, address: int, scale_factor: str, label: str, register: int):
         """
         Get and return a data against the specified address, register, etc. like below.
 

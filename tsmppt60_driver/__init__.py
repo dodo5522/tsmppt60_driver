@@ -1,4 +1,3 @@
-from tsmppt60_driver.base import ManagementBase
 from tsmppt60_driver.controller import (
     BatteryStatus,
     CountersStatus,
@@ -6,6 +5,7 @@ from tsmppt60_driver.controller import (
     SolarArrayStatus,
     TemperaturesStatus,
 )
+from tsmppt60_driver.hal import ModBus
 
 
 """TS-MPPT-60 driver library to get all devices status data."""
@@ -54,7 +54,7 @@ class SystemStatus(object):
         host -- TS-MPPT-60 host address like "192.168.1.20"
         port -- TS-MPPT-60 port number like 80
         """
-        _mb = ManagementBase(host, port=port)
+        _mb = ModBus(host, port=port)
 
         self._devices = (
             BatteryStatus(_mb),
