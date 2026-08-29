@@ -1,5 +1,5 @@
-from tsmppt60_driver.controller.base import ChargeControllerStatus
-from tsmppt60_driver.hal import Register, RegisterMap
+from ..controller.base import ChargeControllerStatus
+from ..hal import Register, RegisterMap
 
 
 class CountersStatus(ChargeControllerStatus):

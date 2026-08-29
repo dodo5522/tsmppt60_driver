@@ -2,8 +2,8 @@ import logging
 from http.client import HTTPConnection
 from time import sleep
 
-from tsmppt60_driver.hal.register import Register, RegisterMap
-from tsmppt60_driver.hal.register_value import RegisterValue
+from .register import Register, RegisterMap
+from .register_value import RegisterValue
 
 
 """

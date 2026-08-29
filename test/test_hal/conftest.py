@@ -1,7 +1,7 @@
 import pytest
 from pytest_mock import MockerFixture
 
-from tsmppt60_driver.hal.mod_bus import ModBus, ModBusScaler
+from tsmppt60_driver import ModBus, ModBusScaler
 
 
 @pytest.fixture

@@ -1,5 +1,5 @@
-from tsmppt60_driver.controller.base import ChargeControllerStatus
-from tsmppt60_driver.hal import Register, RegisterMap
+from ..controller.base import ChargeControllerStatus
+from ..hal import Register, RegisterMap
 
 
 class TemperaturesStatus(ChargeControllerStatus):
@@ -47,8 +47,6 @@ class TemperaturesStatus(ChargeControllerStatus):
 
 if __name__ == "__main__":
     import doctest
-
-    from tsmppt60_driver.hal import Register
 
     doctest.testmod(
         verbose=True,

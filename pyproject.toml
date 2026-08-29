@@ -6,10 +6,9 @@ authors = [
     { name = "Takashi Ando", email = "dodo5522@gmail.com" },
 ]
 urls = { homepage = "https://github.com/dodo5522/tsmppt60_driver" }
-license = "GPLv2"
+license = "GPL-2.0-only"
 readme = "README.md"
 requires-python = ">=3.11,<3.15"
-packages = [{include = "tsmppt60_driver"}]
 dependencies = []
 
 [dependency-groups]
@@ -19,6 +18,14 @@ dev = [
     "pytest-mock~=3.12",
     "ruff~=0.16.3",
 ]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["tsmppt60_driver*"]
 
 [tool.poetry]
 requires-poetry = "~=2.4.1"
@@ -52,7 +59,3 @@ docstring-code-format = true
 [tool.ruff.lint.isort]
 case-sensitive = true
 lines-after-imports = 2
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"

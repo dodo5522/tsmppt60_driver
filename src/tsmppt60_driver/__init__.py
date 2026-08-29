@@ -1,11 +1,11 @@
-from tsmppt60_driver.controller import (
+from .controller import (
     BatteryStatus,
     CountersStatus,
     OperatingConditions,
     SolarArrayStatus,
     TemperaturesStatus,
 )
-from tsmppt60_driver.hal import ModBus
+from .hal import ModBus, ModBusScaler
 
 
 """TS-MPPT-60 driver library to get all devices status data."""
@@ -105,3 +105,6 @@ class SystemStatus(object):
         self._index += 1
 
         return stat_obj
+
+
+__all__ = ["SystemStatus", "ModBusScaler", "ModBus",]

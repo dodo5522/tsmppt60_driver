@@ -1,7 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 
-from tsmppt60_driver.hal import ModBus, Register
+from ..hal import ModBus, Register
 
 
 class ChargeControllerStatus(ABC):

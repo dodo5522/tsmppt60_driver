@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from tsmppt60_driver.hal.base import BaseClass
+from .base import BaseClass
 
 
 @dataclass(frozen=True, kw_only=True)

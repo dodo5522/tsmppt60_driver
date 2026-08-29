@@ -2,7 +2,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from tsmppt60_driver.controller import BatteryStatus, CountersStatus, SolarArrayStatus, TemperaturesStatus
-from tsmppt60_driver.hal import ModBus
+from tsmppt60_driver import ModBus
 
 
 def _gen_url_param(address: int, registers: int) -> str:
