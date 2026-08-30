@@ -6,7 +6,7 @@ from .base import DataClassBase
 
 @dataclass(frozen=True, kw_only=True)
 class RegisterValue(DataClassBase):
-    """MODBUS register value"""
+    """Represent a raw ModBus response and its register values."""
 
     mb_id: int
     field: int
@@ -14,6 +14,7 @@ class RegisterValue(DataClassBase):
 
     @classmethod
     def new(cls, raw: str) -> Self:
+        """Create an instance from a comma-separated ModBus response."""
         [mb_id, field, length, *values] = [int(v) for v in raw.split(",")]
         if length != len(values):
             raise ValueError(f"Invalid {length=} with {values=}")

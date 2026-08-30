@@ -5,22 +5,21 @@ from time import sleep
 from ..register_value import RegisterValue
 
 
-"""
-TS-MPPT-60 driver's base modules.
-"""
-
-
 class ModBusBase:
+    """Provide the common HTTP and register-reading operations for ModBus."""
+
     def __init__(self, host: str, port: int, cgi: str, timeout: int, *, debug: bool = False):
-        """Base class to get raw data from TS-MPPT-60. MODBUS ID is fixed to 1 as written on data sheet TSMPPT.APP_.Modbus.EN_.10.2.pdf.
+        """Initialize a ModBus connection.
+
+        The ModBus ID is fixed at 1 according to the TS-MPPT-60 ModBus
+        specification.
 
         Args:
-            host: Host address like "192.168.1.20" of TS-MPPT-60 live view
-            port: Port number like 80 of TS-MPPT-60 live view
-            cgi: CGI file name to get the information
-            timeout: Connection timeout seconds
-        Keyword Args:
-            debug: If True, logging is enabled.
+            host: Host address of the TS-MPPT-60 live view.
+            port: Port number of the live view.
+            cgi: CGI endpoint used to retrieve data.
+            timeout: Connection timeout in seconds.
+            debug: Enable debug logging when ``True``.
         """
         self._logger = logging.getLogger(type(self).__name__)
         self._logger.addHandler(logging.StreamHandler())
@@ -32,15 +31,14 @@ class ModBusBase:
         self._endpoint = f"/{cgi}"
 
     def _get(self, params: list[str], *, retries: int = 3, initial_wait: int = 1) -> str:
-        """Get response from the specified TS-MPPT-60.
+        """Retrieve a raw response from the TS-MPPT-60.
 
         Args:
-            params: Query parameters list like ["ID=1", "F=..."]
-        Keyword Args:
-            retries: Max retry if failed to get
-            initial_wait: Initial wait time of second if failed to get
+            params: Query parameters, such as ``["ID=1", "F=4"]``.
+            retries: Maximum number of attempts after a failed request.
+            initial_wait: Initial wait time in seconds before retrying.
         Returns:
-            Read modbus response string
+            The response body, or an empty string if all attempts fail.
         """
         read_text = ""
         wait_sec = initial_wait
@@ -61,14 +59,14 @@ class ModBusBase:
         return read_text
 
     def _get_register_values(self, address: int, registers: int) -> tuple[int, ...]:
-        """Read values with short integer (ex. 16bit value) against MBID, Address, and Register.
+        """Read 16-bit register values from the device.
 
         Args:
-            address: Address to get information
-            registers: Register to get information
+            address: Starting register address.
+            registers: Number of registers to read.
         Returns:
-            Integer part (HI value) and fractional part (LO value) if got 2 values.
-            Integer value if got a value.
+            A tuple containing the returned register bytes combined into
+            unsigned 16-bit values.
 
         >>> mb._get_register_values(0x0000, 1)
         (0, 0)

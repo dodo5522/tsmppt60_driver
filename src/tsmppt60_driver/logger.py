@@ -2,17 +2,17 @@ import logging
 
 
 class Logger:
-    """Logger base class for this module."""
+    """Configure console and optional file logging for the module."""
 
     _FORMAT_LOG_MSG = "%(asctime)s %(name)s %(levelname)s: %(message)s"
     _FORMAT_LOG_DATE = "%Y/%m/%d %p %l:%M:%S"
 
     def __init__(self, log_file_path=None, debug=False):
-        """Initialize Logger class object.
+        """Initialize a logger.
 
-        Keyword arguments:
-        log_file_path -- Path to record log file.
-        debug -- If True, logging is enabled.
+        Args:
+            log_file_path: Optional path to the log file.
+            debug: Set the logger to debug level when ``True``.
         """
         self.logger = logging.getLogger(type(self).__name__)
 
