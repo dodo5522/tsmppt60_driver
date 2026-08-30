@@ -1,21 +1,10 @@
 import pytest
 from pytest_mock import MockerFixture
-
 from tsmppt60_driver import ModBus, ModBusScaler
 
 
 @pytest.fixture
-def mocked_get_current_scaler(mocker: MockerFixture):
-    return mocker.patch("tsmppt60_driver.hal.mod_bus.ModBusScaler.get_current_scaler")
-
-
-@pytest.fixture
-def mocked_get_voltage_scaler(mocker: MockerFixture):
-    return mocker.patch("tsmppt60_driver.hal.mod_bus.ModBusScaler.get_voltage_scaler")
-
-
-@pytest.fixture
-def mocked_mod_bus(mocker: MockerFixture, mocked_get_voltage_scaler, mocked_get_current_scaler):
+def mocked_mod_bus(mocker: MockerFixture):
     def __mod_bus(response_status: int, response_text: str, voltage_scaler: float, current_scaler: float):
         response = mocker.MagicMock()
         response.status = response_status
@@ -26,8 +15,8 @@ def mocked_mod_bus(mocker: MockerFixture, mocked_get_voltage_scaler, mocked_get_
         connection.getresponse = mocker.Mock(return_value=response)
 
         mocker.patch("tsmppt60_driver.hal.base.mod_bus.HTTPConnection", return_value=connection)
-        mocked_get_voltage_scaler.return_value = voltage_scaler
-        mocked_get_current_scaler.return_value = current_scaler
+        mocker.patch("tsmppt60_driver.hal.mod_bus.ModBusScaler.get_current_scaler", return_value=current_scaler)
+        mocker.patch("tsmppt60_driver.hal.mod_bus.ModBusScaler.get_voltage_scaler", return_value=voltage_scaler)
 
         return ModBus("dummy.co.jp", port=80), connection
 
