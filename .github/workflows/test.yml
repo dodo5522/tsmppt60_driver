@@ -9,8 +9,12 @@ on:
 
 jobs:
   test:
-    name: Test
+    name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
 
     steps:
     - uses: actions/checkout@v6
@@ -19,7 +23,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v6
       with:
-        python-version: "3.11"
+        python-version: ${{ matrix.python-version }}
     - name: Install poetry and dependencies
       run: |
         pip install poetry==2.4.1

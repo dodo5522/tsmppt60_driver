@@ -2,7 +2,8 @@ import logging
 from http.client import HTTPConnection
 from time import sleep
 
-from tsmppt60_driver.hal import Register, RegisterMap, RegisterValue
+from .register import Register, RegisterMap
+from .register_value import RegisterValue
 
 
 """
@@ -10,18 +11,16 @@ TS-MPPT-60 driver's base modules.
 """
 
 
-class ManagementBase:
-    _ID_MODBUS = 0x01
-
-    def __init__(self, host: str, port: int, *, cgi: str = "MBCSV.cgi", timeout: int = 5, debug: bool = False):
-        """Class to get raw data from TS-MPPT-60. MODBUS ID is fixed to 1 as written on data sheet TSMPPT.APP_.Modbus.EN_.10.2.pdf.
+class ModBusBase:
+    def __init__(self, host: str, port: int, cgi: str, timeout: int, *, debug: bool = False):
+        """Base class to get raw data from TS-MPPT-60. MODBUS ID is fixed to 1 as written on data sheet TSMPPT.APP_.Modbus.EN_.10.2.pdf.
 
         Args:
             host: Host address like "192.168.1.20" of TS-MPPT-60 live view
             port: Port number like 80 of TS-MPPT-60 live view
-        Keyword Args:
             cgi: CGI file name to get the information
             timeout: Connection timeout seconds
+        Keyword Args:
             debug: If True, logging is enabled.
         """
         self._logger = logging.getLogger(type(self).__name__)
@@ -32,8 +31,6 @@ class ManagementBase:
 
         self._connection = HTTPConnection(host, port=port, timeout=timeout)
         self._endpoint = f"/{cgi}"
-        self._voltage_scale = self._compute_scaler(RegisterMap.VOLTAGE_SCALING)
-        self._current_scale = self._compute_scaler(RegisterMap.CURRENT_SCALING)
 
     def _get(self, params: list[str], *, retries: int = 3, initial_wait: int = 1) -> str:
         """Get response from the specified TS-MPPT-60.
@@ -64,14 +61,12 @@ class ManagementBase:
 
         return read_text
 
-    def _get_register_values(self, address: int, registers: int, *, mb_id: int = _ID_MODBUS) -> tuple[int, ...]:
+    def _get_register_values(self, address: int, registers: int) -> tuple[int, ...]:
         """Read values with short integer (ex. 16bit value) against MBID, Address, and Register.
 
         Args:
             address: Address to get information
             registers: Register to get information
-        Keyword Args:
-            mb_id: MBID
         Returns:
             Integer part (HI value) and fractional part (LO value) if got 2 values.
             Integer value if got a value.
@@ -79,16 +74,18 @@ class ManagementBase:
         >>> mb._get_register_values(0x0000, 1)
         (0, 0)
         """
+        mod_bus_id = 1
+        field = 4
 
         reg = RegisterValue.new(
             self._get(
                 [
-                    "ID=" + str(mb_id),
-                    "F=4",
-                    "AHI=" + str(address >> 8),
-                    "ALO=" + str(address & 255),
-                    "RHI=" + str(registers >> 8),
-                    "RLO=" + str(registers & 255),
+                    f"ID={mod_bus_id}",
+                    f"F={field}",
+                    f"AHI={address >> 8}",
+                    f"ALO={address & 255}",
+                    f"RHI={registers >> 8}",
+                    f"RLO={registers & 255}",
                 ]
             )
         )
@@ -104,7 +101,12 @@ class ManagementBase:
 
         return tuple(short_values)
 
-    def _compute_scaler(self, reg: Register) -> float:
+
+class ModBusScaler(ModBusBase):
+    def __init__(self, host: str, port: int, *, cgi: str = "MBCSV.cgi", timeout: int = 5, debug: bool = False):
+        super().__init__(host, port, cgi, timeout, debug=debug)
+
+    def _get_scaler(self, reg: Register) -> float:
         """Compute and return the voltage/current scaler as written on data sheet page 8 or 25.
         This will be called only once when initializing this object.
 
@@ -123,13 +125,28 @@ class ManagementBase:
         Returns:
             Computed value
 
-        >>> mb._compute_scaler(RegisterMap.VOLTAGE_SCALING)
+        >>> mb_scaler._get_scaler(RegisterMap.VOLTAGE_SCALING)
         0.0
-        >>> mb._compute_scaler(RegisterMap.CURRENT_SCALING)
+        >>> mb_scaler._get_scaler(RegisterMap.CURRENT_SCALING)
         0.0
         """
         values = self._get_register_values(reg.address, reg.registers)
         return float(values[0]) + (float(values[1]) / pow(2, 16))
+
+    def get_voltage_scaler(self) -> float:
+        return self._get_scaler(RegisterMap.VOLTAGE_SCALING)
+
+    def get_current_scaler(self) -> float:
+        return self._get_scaler(RegisterMap.CURRENT_SCALING)
+
+
+class ModBus(ModBusBase):
+    def __init__(self, host: str, port: int, *, cgi: str = "MBCSV.cgi", timeout: int = 5, debug: bool = False):
+        super().__init__(host, port, cgi, timeout, debug=debug)
+
+        scaler = ModBusScaler(host, port, cgi=cgi, timeout=timeout, debug=debug)
+        self._voltage_scale = scaler.get_voltage_scaler()
+        self._current_scale = scaler.get_current_scaler()
 
     def get_value(self, address: int, register: int):
         """Return a raw value against address got from TS-MPPT-60.
@@ -194,5 +211,11 @@ if __name__ == "__main__":
     import doctest
     from unittest.mock import patch
 
-    with patch.object(ManagementBase, "_get", return_value="1,4,4,0,0,0,0"):
-        doctest.testmod(verbose=True, extraglobs={"mb": ManagementBase(host="dummy.com", port=80)})
+    with patch.object(ModBusBase, "_get", return_value="1,4,4,0,0,0,0"):
+        doctest.testmod(
+            verbose=True,
+            extraglobs={
+                "mb": ModBus(host="dummy.com", port=80),
+                "mb_scaler": ModBusScaler(host="dummy.com", port=80),
+            },
+        )

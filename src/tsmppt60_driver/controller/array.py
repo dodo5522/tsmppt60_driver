@@ -1,5 +1,5 @@
-from tsmppt60_driver.controller.base import ChargeControllerStatus
-from tsmppt60_driver.hal import Register, RegisterMap
+from ..controller.base import ChargeControllerStatus
+from ..hal import Register, RegisterMap
 
 
 class SolarArrayStatus(ChargeControllerStatus):
@@ -20,23 +20,23 @@ class SolarArrayStatus(ChargeControllerStatus):
         """
         ChargeControllerStatus.__init__(self, mb, "Array")
 
-    def get_params(self, is_limit=True) -> list[Register]:
+    def _get_params(self, is_limited=True) -> list[Register]:
         """Get and return a list of all params to get the solar array status. The param is consisted by (address, scale_factor, label, register).
 
         Keyword arguments:
         is_limit -- limit the number of getting status
 
-        >>> array.get_params() == [
+        >>> array._get_params() == [
         ...     Register(address=27, scale_factor="V", label="Array Voltage", registers=1),
         ...     Register(address=29, scale_factor="A", label="Array Current", registers=1),
         ... ]
         True
-        >>> array.get_params(True) == [
+        >>> array._get_params(True) == [
         ...     Register(address=27, scale_factor="V", label="Array Voltage", registers=1),
         ...     Register(address=29, scale_factor="A", label="Array Current", registers=1),
         ... ]
         True
-        >>> array.get_params(False) == [
+        >>> array._get_params(False) == [
         ...     Register(address=27, scale_factor="V", label="Array Voltage", registers=1),
         ...     Register(address=29, scale_factor="A", label="Array Current", registers=1),
         ...     Register(address=61, scale_factor="V", label="Sweep Vmp", registers=1),
@@ -47,7 +47,7 @@ class SolarArrayStatus(ChargeControllerStatus):
         """
         params = [RegisterMap.ARRAY_VOLTAGE, RegisterMap.ARRAY_CURRENT]
 
-        if not is_limit:
+        if not is_limited:
             params.extend(
                 [
                     RegisterMap.VMP_LAST_SWEEP,
