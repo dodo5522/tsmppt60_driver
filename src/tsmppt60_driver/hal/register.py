@@ -1,10 +1,10 @@
 from dataclasses import dataclass, field
 
-from .base import BaseClass
+from .base import DataClassBase
 
 
 @dataclass(frozen=True, kw_only=True)
-class Register(BaseClass):
+class Register(DataClassBase):
     """MODBUS register value"""
 
     address: int
@@ -14,7 +14,7 @@ class Register(BaseClass):
 
 
 @dataclass(frozen=True)
-class RegisterMap(BaseClass):
+class RegisterMap(DataClassBase):
     """MODBUS register table for TS-MPPT-60 written on data sheet TSMPPT.APP_.Modbus.EN_.10.2.pdf."""
 
     VOLTAGE_SCALING = Register(address=0x0000, registers=2, label="Voltage Scaling")

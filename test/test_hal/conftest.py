@@ -25,7 +25,7 @@ def mocked_mod_bus(mocker: MockerFixture, mocked_get_voltage_scaler, mocked_get_
         connection.request = mocker.Mock()
         connection.getresponse = mocker.Mock(return_value=response)
 
-        mocker.patch("tsmppt60_driver.hal.mod_bus.HTTPConnection", return_value=connection)
+        mocker.patch("tsmppt60_driver.hal.base.mod_bus.HTTPConnection", return_value=connection)
         mocked_get_voltage_scaler.return_value = voltage_scaler
         mocked_get_current_scaler.return_value = current_scaler
 
@@ -45,7 +45,7 @@ def mocked_mod_bus_scaler(mocker: MockerFixture):
         connection.request = mocker.Mock()
         connection.getresponse = mocker.Mock(return_value=response)
 
-        mocker.patch("tsmppt60_driver.hal.mod_bus.HTTPConnection", return_value=connection)
+        mocker.patch("tsmppt60_driver.hal.base.mod_bus.HTTPConnection", return_value=connection)
         return ModBusScaler("dummy.co.jp", port=80), connection
 
     return __mod_bus_scaler

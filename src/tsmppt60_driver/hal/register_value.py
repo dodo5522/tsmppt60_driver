@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from typing import Self
 
-from .base import BaseClass
+from .base import DataClassBase
 
 
 @dataclass(frozen=True, kw_only=True)
-class RegisterValue(BaseClass):
+class RegisterValue(DataClassBase):
     """MODBUS register value"""
 
     mb_id: int
