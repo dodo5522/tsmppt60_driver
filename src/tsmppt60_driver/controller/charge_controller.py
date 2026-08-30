@@ -2,15 +2,16 @@ from ..controller.base import ControllerBase
 from ..hal import ModBus, RegisterMap
 
 
-class Battery(ControllerBase):
-    """Controller for battery-related status data.
+class ChargeController(ControllerBase):
+    """Controller for charge-controller operating conditions.
 
-    The controller exposes battery voltage, target voltage, charging current,
-    output power, and battery temperature.
+    The controller exposes LED state, charge state, heat-sink temperature,
+    resettable amp hours, and resettable kilowatt hours.
     """
 
     def __init__(self, host: str, port: int, *, debug: bool = False):
-        """Initialize a Battery controller.
+        """
+        Initialize a ChargeController controller.
 
         Args:
             host: TS-MPPT-60 host address like "192.168.1.20"
@@ -22,11 +23,11 @@ class Battery(ControllerBase):
             ModBus(host, port=port),
             self.__class__.__name__,
             [
-                RegisterMap.BATTERY_VOLTAGE,
-                RegisterMap.TARGET_REGULATION_VOLTAGE,
-                RegisterMap.CHARGING_CURRENT,
-                RegisterMap.OUTPUT_POWER,
-                RegisterMap.BATTERY_TEMP,
+                RegisterMap.LED_STATE,
+                RegisterMap.CHARGE_STATE,
+                RegisterMap.HEATSINK_TEMP,
+                RegisterMap.AH_CHARGE_RESETABLE,
+                RegisterMap.KWH_CHARGE_RESETABLE,
             ],
             debug=debug,
         )

@@ -2,33 +2,23 @@ from .base import ModBusBase
 from .register import Register, RegisterMap
 
 
-"""
-TS-MPPT-60 driver's base modules.
-"""
-
-
 class ModBusScaler(ModBusBase):
+    """Read the voltage and current scale factors from the device."""
+
     def __init__(self, host: str, port: int, *, cgi: str = "MBCSV.cgi", timeout: int = 5, debug: bool = False):
+        """Initialize a scaler reader for a TS-MPPT-60."""
         super().__init__(host, port, cgi, timeout, debug=debug)
 
     def _get_scaler(self, reg: Register) -> float:
-        """Compute and return the voltage/current scaler as written on data sheet page 8 or 25.
-        This will be called only once when initializing this object.
+        """Calculate a scale factor from a scaling register.
 
-        Vscaling = whole.fraction = [V_PU hi].[V_PU lo]
+        The scale factor is represented as an integer part and a fractional
+        part, where the fractional part is divided by ``2**16``.
 
-        Example:
-        Address:Value(hex):Variable Name
-        V_PU HI byte:0x004E = 78
-        V_PU LO byte:0x03A6 = 934
-
-        V_PU lo must be shifted by 16 (divided by 2^16)
-        and then added to V_PU hi Vscaling = 78 + 934/65536 = 78.01425
-
-        Keyword Args:
-            reg: register to get a value
+        Args:
+            reg: Scaling register to read.
         Returns:
-            Computed value
+            The calculated scale factor.
 
         >>> mb_scaler._get_scaler(RegisterMap.VOLTAGE_SCALING)
         0.0
@@ -39,14 +29,19 @@ class ModBusScaler(ModBusBase):
         return float(values[0]) + (float(values[1]) / pow(2, 16))
 
     def get_voltage_scaler(self) -> float:
+        """Return the voltage scale factor."""
         return self._get_scaler(RegisterMap.VOLTAGE_SCALING)
 
     def get_current_scaler(self) -> float:
+        """Return the current scale factor."""
         return self._get_scaler(RegisterMap.CURRENT_SCALING)
 
 
 class ModBus(ModBusBase):
+    """Read raw and scaled values from the TS-MPPT-60."""
+
     def __init__(self, host: str, port: int, *, cgi: str = "MBCSV.cgi", timeout: int = 5, debug: bool = False):
+        """Initialize a ModBus reader and load its voltage/current scales."""
         super().__init__(host, port, cgi, timeout, debug=debug)
 
         scaler = ModBusScaler(host, port, cgi=cgi, timeout=timeout, debug=debug)
@@ -54,13 +49,13 @@ class ModBus(ModBusBase):
         self._current_scale = scaler.get_current_scaler()
 
     def get_value(self, address: int, register: int):
-        """Return a raw value against address got from TS-MPPT-60.
+        """Return the raw value stored at a register address.
 
         Args:
-            address: address to get a value
-            register: register to get a value
+            address: Starting register address.
+            register: Number of registers to read.
         Returns:
-            Raw value as integer type.
+            The raw register value as an integer.
 
         >>> mb.get_value(0x0026, 1)
         0
@@ -81,14 +76,14 @@ class ModBus(ModBusBase):
         return raw_value
 
     def get_scaled_value(self, address: int, scale_factor: str, register: int) -> float:
-        """Calculate and return a scaled status value against address got from TS-MPPT-60.
+        """Return a raw register value converted to the requested unit.
 
         Args:
-            address: address to get a value
-            scale_factor: unit string
-            register: register to get a value
+            address: Starting register address.
+            scale_factor: Unit or scale-factor identifier, such as ``"V"``.
+            register: Number of registers to read.
         Returns:
-            Scaled value like 12.4 against your expecting.
+            The rounded, scaled value.
 
         >>> mb.get_scaled_value(0x0026, "V", 1)
         0.0

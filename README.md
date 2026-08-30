@@ -1,84 +1,107 @@
 # TS-MPPT-60 driver module
 
-This is python driver module to get the following status of TS-MPPT-60.
+Python driver module for reading status data from a TS-MPPT-60 charge
+controller.
 
-* Amp Hours
-* Array Current
-* Array Voltage
-* Battery Temperature
-* Battery Voltage
-* Charge Current
-* Heat Sink Temperature
-* Kilowatt Hours
-* Output Power
-* Sweep Pmax
-* Sweep Vmp
-* Sweep Voc
-* Target Voltage
+The public API exposes the following controller groups:
 
-# Requirement
+- `Battery`
+  - Battery Voltage
+  - Target Voltage
+  - Charge Current
+  - Output Power
+  - Battery Temperature
+- `SolarArray`
+  - Array Voltage
+  - Array Current
+  - Sweep Vmp
+  - Sweep Voc
+  - Sweep Pmax
+- `ChargeController`
+  - LED State
+  - Charge State
+  - Heat Sink Temperature
+  - Amp Hours
+  - Kilowatt Hours
 
-* requests
+## Requirements
 
-# How to install
+- Python 3.11 or later, before 3.15
+
+## Installation
 
 ```bash
 pip install tsmppt60-driver
 ```
 
-# How to use
+## Usage
 
-SystemStatus class object is iterator containing all live status data of TS-MPPT-60. Try the following line.
-
-```python
-print(SystemStatus("192.168.1.20").get())
-```
-
-The result is like following.
-
-```
-{'Amp Hours': {'group': 'Counter', 'unit': 'Ah', 'value': 18097.9},
- 'Array Current': {'group': 'Array', 'unit': 'A', 'value': 1.4},
- 'Array Voltage': {'group': 'Array', 'unit': 'V', 'value': 53.41},
- 'Battery Voltage': {'group': 'Battery', 'unit': 'V', 'value': 23.93},
- 'Charge Current': {'group': 'Battery', 'unit': 'A', 'value': 3.2},
- 'Heat Sink Temperature': {'group': 'Temperature', 'unit': 'C', ...},
- 'Kilowatt Hours': {'group': 'Counter', 'unit': 'kWh', 'value': 237.0},
- 'Target Voltage': {'group': 'Battery', 'unit': 'V', 'value': 28.6}}
-```
-
-The above data is limited information. You can disable the limitter by setting False to the second argument as SystemStatus() class.
+`SystemStatus` reads all controller groups by default. The result is a
+dictionary keyed by group, with each group's status keyed by label.
 
 ```python
-print(SystemStatus("192.168.1.20").get(False))
+from tsmppt60_driver import SystemStatus
+
+status = SystemStatus("192.168.1.20")
+print(status.get())
 ```
 
-The result is like following.
+The result has the following structure:
 
-```
-{'Amp Hours': {'group': 'Counter', 'unit': 'Ah', 'value': 18097.8},
- 'Array Current': {'group': 'Array', 'unit': 'A', 'value': 1.3},
- 'Array Voltage': {'group': 'Array', 'unit': 'V', 'value': 53.41},
- 'Battery Temperature': {'group': 'Temperature', 'unit': 'C', ...},
- 'Battery Voltage': {'group': 'Battery', 'unit': 'V', 'value': 24.01},
- 'Charge Current': {'group': 'Battery', 'unit': 'A', 'value': 3.2},
- 'Heat Sink Temperature': {'group': 'Temperature', 'unit': 'C', ...},
- 'Kilowatt Hours': {'group': 'Counter', 'unit': 'kWh', 'value': 237.0},
- 'Output Power': {'group': 'Battery', 'unit': 'W', 'value': 76.0},
- 'Sweep Pmax': {'group': 'Array', 'unit': 'W', 'value': 73.0},
- 'Sweep Vmp': {'group': 'Array', 'unit': 'V', 'value': 53.41},
- 'Sweep Voc': {'group': 'Array', 'unit': 'V', 'value': 60.05},
- 'Target Voltage': {'group': 'Battery', 'unit': 'V', 'value': 28.6}}
-```
-
-JSON string can be got with following code.
-
-```bash
-$ python -c "from tsmppt60_driver import *; import json; print(json.dumps(SystemStatus('192.168.1.20').get()))" | jq '."Battery Voltage"'
-
+```python
 {
-  "group": "Battery",
-  "value": 28.6,
-  "unit": "V"
+    "Battery": {
+        "Battery Voltage": {"value": 23.93, "unit": "V"},
+        "Target Voltage": {"value": 28.6, "unit": "V"},
+        "Charge Current": {"value": 3.2, "unit": "A"},
+        "Output Power": {"value": 76.0, "unit": "W"},
+        "Battery Temperature": {"value": 25.0, "unit": "C"},
+    },
+    "SolarArray": {
+        "Array Voltage": {"value": 53.41, "unit": "V"},
+        "Array Current": {"value": 1.4, "unit": "A"},
+        "Sweep Vmp": {"value": 53.41, "unit": "V"},
+        "Sweep Voc": {"value": 60.05, "unit": "V"},
+        "Sweep Pmax": {"value": 73.0, "unit": "W"},
+    },
+    "ChargeController": {
+        "LED State": {"value": 11, "unit": ""},
+        "Charge State": {"value": 3, "unit": ""},
+        "Heat Sink Temperature": {"value": 30.0, "unit": "C"},
+        "Amp Hours": {"value": 18097.9, "unit": "Ah"},
+        "Kilowatt Hours": {"value": 237.0, "unit": "kWh"},
+    },
 }
+```
+
+To read only selected groups, pass their names using the keyword-only
+`groups` argument:
+
+```python
+status.get(groups={"Battery"})
+```
+
+The `groups` property returns the available group names:
+
+```python
+print(status.groups)
+# {'Battery', 'SolarArray', 'ChargeController'}
+```
+
+Individual controllers are also available from the top-level package:
+
+```python
+from tsmppt60_driver import Battery
+
+battery = Battery("192.168.1.20", 80)
+print(battery.labels)
+print(battery.get())
+```
+
+To serialize the result as JSON:
+
+```python
+import json
+
+print(json.dumps(status.get()))
 ```

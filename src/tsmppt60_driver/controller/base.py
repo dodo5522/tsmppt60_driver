@@ -1,22 +1,24 @@
 import logging
-from abc import ABC, abstractmethod
+from typing import Sequence
 
 from ..hal import ModBus, Register
 
 
-class ChargeControllerStatus(ABC):
-    """Abstract class to get data about charge controller status."""
+class ControllerBase:
+    """Base class for controllers that read status data from a ModBus device."""
 
-    def __init__(self, mb: ModBus, group: str, debug: bool = False):
-        """Initialize class object.
+    def __init__(self, mb: ModBus, group: str, registers: list[Register], *, debug: bool = False):
+        """Initialize a controller.
 
-        Keyword arguments:
-        mb -- instance of ManagementBase class.
-        group -- string to indicate this instance name.
-        debug -- If True, logging is enabled.
+        Args:
+            mb: ModBus instance used to read register values.
+            group: Name of the controller group.
+            registers: Registers exposed by this controller.
+            debug: Enable debug logging when ``True``.
         """
         self._mb = mb
         self._group = group
+        self._registers = registers
 
         handler = logging.StreamHandler()
         handler.setFormatter(
@@ -30,63 +32,45 @@ class ChargeControllerStatus(ABC):
             self._logger.setLevel(logging.DEBUG)
 
     def __repr__(self):
+        """Return the controller group name for debugging and display."""
         return self._group
 
     def __str__(self):
+        """Return the controller group name."""
         return self._group
 
-    def get_status(self, address: int, scale_factor: str, label: str, register: int):
-        """
-        Get and return a data against the specified address, register, etc. like below.
+    @property
+    def group(self) -> str:
+        """Return the controller group name."""
+        return self._group
 
-            {
-                "group": "battery",
-                "label": "Battery Voltage",
-                "value": 12.1,
-                "unit": "V"
-            }
+    @property
+    def labels(self) -> set[str]:
+        """Return the labels exposed by this controller."""
+        return {r.label for r in self._registers}
 
-        Keyword arguments:
-        address -- address to get a value
-        scale_factor -- unit string
-        label -- label string of got value
-        register -- register to get a value
-        """
-        ret_values = {}
-        ret_values["group"] = self._group
-        ret_values["label"] = label
-        ret_values["value"] = self._mb.get_scaled_value(address, scale_factor, register)
-        ret_values["unit"] = scale_factor
+    def get(self, *, target_labels: Sequence[str] | None = None):
+        """Return status data for the selected labels.
 
-        return ret_values
-
-    def get_status_all(self, is_limited: bool = True):
-        """
-        Get and return all data against the inherited class's parameter list.
-
-            {
-                "group": "Battery",
-                "label": "Battery Voltage",
-                "value": 12.1,
-                "unit": "V"
-            },
-            {
-                "group": "Battery",
-                "label": "Charge Current",
-                "value": 8.4,
-                "unit": "A"
-            }
-
-        Keyword Args:
-            is_limited: limit the number of getting status
-        """
-        return [self.get_status(p.address, p.scale_factor, p.label, p.registers) for p in self._get_params(is_limited)]
-
-    @abstractmethod
-    def _get_params(self, is_limited: bool) -> list[Register]:
-        """Get and return a list of all params of the inherited class's group.
+        If ``target_labels`` is omitted, all labels exposed by this controller
+        are read. The result is nested under the controller's group name.
 
         Args:
-            is_limited: limit the number of getting status
+            target_labels: Labels to include in the result.
+
+        Returns:
+            A nested dictionary containing the selected status data.
         """
-        raise NotImplementedError()
+        if target_labels is None:
+            target_labels = self.labels
+
+        return {
+            self.group: {
+                r.label: {
+                    "value": self._mb.get_scaled_value(r.address, r.scale_factor, r.registers),
+                    "unit": r.scale_factor,
+                }
+                for r in self._registers
+                if r.label in target_labels
+            }
+        }

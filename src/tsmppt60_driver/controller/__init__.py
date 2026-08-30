@@ -1,16 +1,12 @@
-from .array import SolarArrayStatus
-from .base import ChargeControllerStatus
-from .battery import BatteryStatus
-from .condition import OperatingConditions
-from .counter import CountersStatus
-from .temperature import TemperaturesStatus
+from .base import ControllerBase
+from .battery import Battery
+from .charge_controller import ChargeController
+from .solar_array import SolarArray
 
 
 __all__ = [
-    "BatteryStatus",
-    "ChargeControllerStatus",
-    "CountersStatus",
-    "OperatingConditions",
-    "SolarArrayStatus",
-    "TemperaturesStatus",
+    "Battery",
+    "ChargeController",
+    "ControllerBase",
+    "SolarArray",
 ]

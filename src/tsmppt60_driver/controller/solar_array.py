@@ -2,15 +2,15 @@ from ..controller.base import ControllerBase
 from ..hal import ModBus, RegisterMap
 
 
-class Battery(ControllerBase):
-    """Controller for battery-related status data.
+class SolarArray(ControllerBase):
+    """Controller for solar-array status data.
 
-    The controller exposes battery voltage, target voltage, charging current,
-    output power, and battery temperature.
+    The controller exposes array voltage, array current, and the most recent
+    Vmp, Voc, and Pmax sweep values.
     """
 
     def __init__(self, host: str, port: int, *, debug: bool = False):
-        """Initialize a Battery controller.
+        """Initialize a SolarArray controller.
 
         Args:
             host: TS-MPPT-60 host address like "192.168.1.20"
@@ -22,11 +22,11 @@ class Battery(ControllerBase):
             ModBus(host, port=port),
             self.__class__.__name__,
             [
-                RegisterMap.BATTERY_VOLTAGE,
-                RegisterMap.TARGET_REGULATION_VOLTAGE,
-                RegisterMap.CHARGING_CURRENT,
-                RegisterMap.OUTPUT_POWER,
-                RegisterMap.BATTERY_TEMP,
+                RegisterMap.ARRAY_VOLTAGE,
+                RegisterMap.ARRAY_CURRENT,
+                RegisterMap.VMP_LAST_SWEEP,
+                RegisterMap.VOC_LAST_SWEEP,
+                RegisterMap.POWER_LAST_SWEEP,
             ],
             debug=debug,
         )

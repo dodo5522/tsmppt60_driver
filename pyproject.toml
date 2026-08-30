@@ -37,6 +37,8 @@ extend-exclude = [
   "firebase",
   "infra",
 ]
+
+[tool.ruff.lint]
 select = [
   "E",  # pycodestyle errors
   "W",  # pycodestyle warnings
