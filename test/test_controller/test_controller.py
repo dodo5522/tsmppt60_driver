@@ -1,5 +1,4 @@
 import pytest
-
 from tsmppt60_driver.hal import RegisterMap
 
 
@@ -36,18 +35,11 @@ from tsmppt60_driver.hal import RegisterMap
         ),
     ],
 )
-def test_get_status(mocked_controller, controller, modbus_register, response, expected):
+def test_get_status(mocked_controller, controller, modbus_register, response, expected, expected_query_param):
     controllers, mocked_get = mocked_controller
 
-    def get_status(query_params: list[str]) -> str:
-        assert "&".join(query_params) == (
-            f"ID=1&F=4&AHI={modbus_register.address >> 8}&ALO={modbus_register.address & 255}"
-            f"&RHI={modbus_register.registers >> 8}&RLO={modbus_register.registers & 255}"
-        )
-        return response
-
     mocked_get.reset_mock()
-    mocked_get.side_effect = get_status
+    mocked_get.side_effect = lambda _: response
 
     actual = controllers[controller].get_status(
         modbus_register.address,

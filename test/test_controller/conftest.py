@@ -1,26 +1,16 @@
 import pytest
 from pytest_mock import MockerFixture
-
-from tsmppt60_driver.controller import BatteryStatus, CountersStatus, SolarArrayStatus, TemperaturesStatus
 from tsmppt60_driver import ModBus
-
-
-def _gen_url_param(address: int, registers: int) -> str:
-    return "ID=1&F=4&AHI={}&ALO={}&RHI={}&RLO={}".format(
-        address >> 8,
-        address & 255,
-        registers >> 8,
-        registers & 255,
-    )
+from tsmppt60_driver.controller import BatteryStatus, CountersStatus, SolarArrayStatus, TemperaturesStatus
 
 
 @pytest.fixture
-def mocked_controller(mocker: MockerFixture):
+def mocked_controller(mocker: MockerFixture, expected_query_param):
     """Create controller status objects with the ModBus scaler requests mocked."""
 
     table_scaling = {
-        _gen_url_param(0x0000, 2): "1,4,4,0,180,0,0",  # VOLTAGE_SCALING
-        _gen_url_param(0x0002, 2): "1,4,4,0,80,0,0",  # CURRENT_SCALING
+        expected_query_param(0x0000, 2): "1,4,4,0,180,0,0",  # VOLTAGE_SCALING
+        expected_query_param(0x0002, 2): "1,4,4,0,80,0,0",  # CURRENT_SCALING
     }
 
     def get_scaling(query_params: list[str]) -> str:

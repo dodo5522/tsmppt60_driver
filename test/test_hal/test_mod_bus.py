@@ -1,7 +1,6 @@
 import pytest
 from pytest import param
-
-from tsmppt60_driver.hal.mod_bus import RegisterMap
+from tsmppt60_driver.hal.mod_bus import Register, RegisterMap
 
 
 @pytest.mark.parametrize(
@@ -22,11 +21,15 @@ from tsmppt60_driver.hal.mod_bus import RegisterMap
         param(RegisterMap.KWH_CHARGE_RESETABLE, "1,4,2,1,4", 260.0, id="KWH_CHARGE_RESETABLE"),
     ],
 )
-def test_get_scaled_value(mocked_mod_bus, register, response, expected):
-    md, _ = mocked_mod_bus(200, response, 180.0, 80.0)
+def test_get_scaled_value(mocked_mod_bus, register: Register, response, expected, expected_query_param):
+    md, connection = mocked_mod_bus(200, response, 180.0, 80.0)
     actual = md.get_scaled_value(
         address=register.address,
         scale_factor=register.scale_factor,
         register=register.registers,
     )
     assert round(actual, 2) == round(expected, 2)
+
+    request_args = connection.request.call_args.args
+    assert request_args[0] == "GET"
+    assert request_args[1] == f"/MBCSV.cgi?{expected_query_param(register.address, register.registers)}"
