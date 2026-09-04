@@ -4,7 +4,6 @@ tsmppt60_driver.egg-info
 build
 cover
 dist
-docs
 htmlcov
 tags
 *.swp

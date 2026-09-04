@@ -1,0 +1,31 @@
+{
+  "version": "10.2",
+  "source": "https://www.archcape.com/radio/acrepeater/manuals/TSMPPT.APP.Modbus.EN.10.2.pdf",
+  "coverage": "curated_core_registers",
+  "registers": [
+    {"address": "0x0000", "logical_address": 1, "name": "V_PU_hi", "access": "read", "unit": null, "scaling": "whole_part"},
+    {"address": "0x0001", "logical_address": 2, "name": "V_PU_lo", "access": "read", "unit": null, "scaling": "fraction_2^-16"},
+    {"address": "0x0002", "logical_address": 3, "name": "I_PU_hi", "access": "read", "unit": null, "scaling": "whole_part"},
+    {"address": "0x0003", "logical_address": 4, "name": "I_PU_lo", "access": "read", "unit": null, "scaling": "fraction_2^-16"},
+    {"address": "0x0018", "logical_address": 25, "name": "battery_voltage_filtered", "access": "read", "unit": "V", "scaling": "raw * V_PU / 2^15"},
+    {"address": "0x0019", "logical_address": 26, "name": "battery_terminal_voltage", "access": "read", "unit": "V", "scaling": "raw * V_PU / 2^15"},
+    {"address": "0x001A", "logical_address": 27, "name": "battery_sense_voltage", "access": "read", "unit": "V", "scaling": "raw * V_PU / 2^15"},
+    {"address": "0x001B", "logical_address": 28, "name": "array_voltage", "access": "read", "unit": "V", "scaling": "raw * V_PU / 2^15"},
+    {"address": "0x001C", "logical_address": 29, "name": "battery_charge_current", "access": "read", "unit": "A", "scaling": "raw * I_PU / 2^15"},
+    {"address": "0x001D", "logical_address": 30, "name": "array_current", "access": "read", "unit": "A", "scaling": "raw * I_PU / 2^15", "note": "not measured by precision shunts; may have significant error"},
+    {"address": "0x0023", "logical_address": 36, "name": "heatsink_temperature", "access": "read", "unit": "C", "signed": true},
+    {"address": "0x0024", "logical_address": 37, "name": "rts_temperature", "access": "read", "unit": "C", "signed": true, "range": "-127..127; 0x80=disconnect"},
+    {"address": "0x0025", "logical_address": 38, "name": "battery_temperature", "access": "read", "unit": "C", "signed": true},
+    {"address": "0x002C", "logical_address": 45, "name": "faults", "access": "read", "unit": null, "bitfield": true},
+    {"address": "0x002E", "logical_address": 47, "name": "alarms_hi", "access": "read", "unit": null, "bitfield": true},
+    {"address": "0x002F", "logical_address": 48, "name": "alarms_lo", "access": "read", "unit": null, "bitfield": true},
+    {"address": "0x0031", "logical_address": 50, "name": "led_state", "access": "read", "unit": null},
+    {"address": "0x0032", "logical_address": 51, "name": "charge_state", "access": "read", "unit": null},
+    {"address": "0x0033", "logical_address": 52, "name": "target_voltage", "access": "read", "unit": "V", "scaling": "raw * V_PU / 2^15"},
+    {"address": "0x003A", "logical_address": 59, "name": "output_power", "access": "read", "unit": "W", "scaling": "raw * V_PU * I_PU / 2^17"},
+    {"address": "0x003B", "logical_address": 60, "name": "input_power", "access": "read", "unit": "W", "scaling": "raw * V_PU * I_PU / 2^17"},
+    {"address": "0x0059", "logical_address": 90, "name": "battery_regulation_override", "access": "write", "unit": "V", "scaling": "raw * V_PU / 2^15", "timeout_seconds": 60},
+    {"address": "0x005A", "logical_address": 91, "name": "array_voltage_fixed", "access": "write", "unit": "V", "scaling": "raw * V_PU / 2^15", "disables_mppt": true},
+    {"address": "0x005B", "logical_address": 92, "name": "array_voltage_fixed_percent", "access": "write", "unit": "%", "scaling": "raw * 100 / 2^16", "disables_mppt": true}
+  ]
+}
