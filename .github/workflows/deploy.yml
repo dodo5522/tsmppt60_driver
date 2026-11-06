@@ -21,7 +21,7 @@ jobs:
         python-version: "3.11"
     - name: Install poetry and build a binary wheel
       run: |
-        pip install poetry==2.4.1
+        pip install poetry~=2.4
         poetry build
     - name: Store the distribution packages
       uses: actions/upload-artifact@v5
