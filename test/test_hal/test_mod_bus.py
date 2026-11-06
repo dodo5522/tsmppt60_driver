@@ -1,6 +1,6 @@
 import pytest
 from pytest import param
-from tsmppt60_driver.hal.mod_bus import Register, RegisterMap
+from tsmppt60_driver.hal import Register, RegisterMap
 
 
 @pytest.mark.parametrize(

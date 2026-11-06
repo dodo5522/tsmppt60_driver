@@ -1,20 +1,11 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
-from .base import DataClassBase
-
-
-@dataclass(frozen=True, kw_only=True)
-class Register(DataClassBase):
-    """Describe a contiguous range of ModBus registers."""
-
-    address: int
-    registers: int
-    label: str = field(default="")
-    scale_factor: str = field(default="")
+from ._base import RegisterBase
+from ._register import Register
 
 
 @dataclass(frozen=True)
-class RegisterMap(DataClassBase):
+class RegisterMap(RegisterBase):
     """Register definitions for the TS-MPPT-60 ModBus interface."""
 
     VOLTAGE_SCALING = Register(address=0x0000, registers=2, label="Voltage Scaling")

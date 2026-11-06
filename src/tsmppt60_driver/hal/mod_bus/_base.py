@@ -2,7 +2,7 @@ import logging
 from http.client import HTTPConnection
 from time import sleep
 
-from ..register_value import RegisterValue
+from ..register import RegisterValue
 
 
 class ModBusBase:

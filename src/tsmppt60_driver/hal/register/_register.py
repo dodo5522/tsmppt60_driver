@@ -1,11 +1,21 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Self
 
-from .base import DataClassBase
+from ._base import RegisterBase
 
 
 @dataclass(frozen=True, kw_only=True)
-class RegisterValue(DataClassBase):
+class Register(RegisterBase):
+    """Describe a contiguous range of ModBus registers."""
+
+    address: int
+    registers: int
+    label: str = field(default="")
+    scale_factor: str = field(default="")
+
+
+@dataclass(frozen=True, kw_only=True)
+class RegisterValue(RegisterBase):
     """Represent a raw ModBus response and its register values."""
 
     mb_id: int
