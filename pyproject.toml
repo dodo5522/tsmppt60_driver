@@ -11,6 +11,9 @@ readme = "README.md"
 requires-python = ">=3.11,<3.15"
 dependencies = []
 
+[project.scripts]
+tsmppt60cli = "tsmppt60_driver.cli:main"
+
 [dependency-groups]
 dev = [
     "pre-commit~=3.8",

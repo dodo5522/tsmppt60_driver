@@ -34,7 +34,51 @@ The public API exposes the following controller groups:
 pip install tsmppt60-driver
 ```
 
+The package installs both the Python API and the `tsmppt60cli` command.
+To install the CLI from a local checkout, run this command from the repository
+root:
+
+```bash
+python -m pip install .
+```
+
 ## Usage
+
+### Command-line interface
+
+Read all controller groups by specifying the controller's host name or IP
+address:
+
+```bash
+tsmppt60cli --host 192.168.1.20
+```
+
+By default, the command writes the status as JSON to standard output, using
+the same structure as the Python API result shown below. To save it to a file:
+
+```bash
+tsmppt60cli --host 192.168.1.20 > status.json
+```
+
+Available options:
+
+| Option | Description | Default |
+| --- | --- | --- |
+| `--host HOST` | Controller host name or IP address | `localhost` |
+| `--port PORT` | Controller port number | `80` |
+| `--debug` | Enable debug mode and include logging metadata in the output | Disabled |
+| `-h`, `--help` | Show help and exit | |
+
+For example, specify a different port and enable debug mode:
+
+```bash
+tsmppt60cli --host 192.168.1.20 --port 8080 --debug
+```
+
+With `--debug`, the output includes a timestamp, logger name, and log level
+before the JSON payload, so it is no longer plain JSON.
+
+### Python API
 
 `TsMppt60` reads all controller groups by default. The result is a
 dictionary keyed by group, with each group's status keyed by label.
@@ -55,7 +99,7 @@ The result has the following structure:
         "Target Voltage": {"value": 28.6, "unit": "V"},
         "Charge Current": {"value": 3.2, "unit": "A"},
         "Output Power": {"value": 76.0, "unit": "W"},
-        "Battery Temperature": {"value": 25.0, "unit": "C"},
+        "Battery Temperature": {"value": 25, "unit": "C"},
     },
     "SolarArray": {
         "Array Voltage": {"value": 53.41, "unit": "V"},
@@ -65,11 +109,11 @@ The result has the following structure:
         "Sweep Pmax": {"value": 73.0, "unit": "W"},
     },
     "ChargeController": {
-        "LED State": {"value": 11, "unit": ""},
-        "Charge State": {"value": 3, "unit": ""},
-        "Heat Sink Temperature": {"value": 30.0, "unit": "C"},
+        "LED State": {"value": 11, "unit": "Numbers"},
+        "Charge State": {"value": 3, "unit": "Numbers"},
+        "Heat Sink Temperature": {"value": 30, "unit": "C"},
         "Amp Hours": {"value": 18097.9, "unit": "Ah"},
-        "Kilowatt Hours": {"value": 237.0, "unit": "kWh"},
+        "Kilowatt Hours": {"value": 237, "unit": "kWh"},
     },
 }
 ```
