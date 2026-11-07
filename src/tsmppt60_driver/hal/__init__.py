@@ -1,6 +1,5 @@
 from .mod_bus import ModBus, ModBusScaler
-from .register import Register, RegisterMap
-from .register_value import RegisterValue
+from .register import Register, RegisterMap, RegisterValue
 
 
 __all__ = [
