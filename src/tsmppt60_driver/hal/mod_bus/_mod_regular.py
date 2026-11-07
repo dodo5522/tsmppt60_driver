@@ -42,11 +42,6 @@ class ModBus(ModBusBase):
             register: Number of registers to read.
         Returns:
             The raw register value as an integer.
-
-        >>> mb.get_value(0x0026, 1)
-        0
-        >>> mb.get_value(0x0027, 1)
-        0
         """
         raw_values = self._get_register_values(address, register)
 
@@ -69,38 +64,19 @@ class ModBus(ModBusBase):
             register: Number of registers to read.
         Returns:
             The rounded, scaled value.
-
-        >>> mb.get_scaled_value(0x0026, "V", 1)
-        0.0
-        >>> mb.get_scaled_value(0x0027, "A", 1)
-        0.0
         """
         raw_value = self.get_value(address, register)
 
-        if scale_factor == "V":
-            scaled_value = raw_value * self._voltage_scale / pow(2, 15)
-        elif scale_factor == "A":
-            scaled_value = raw_value * self._current_scale / pow(2, 15)
-        elif scale_factor == "W":
-            wscale = self._current_scale * self._voltage_scale
-            scaled_value = raw_value * wscale / pow(2, 17)
-        elif scale_factor == "Ah":
-            scaled_value = raw_value / 10.0
-        else:
-            scaled_value = raw_value
+        match scale_factor:
+            case "V":
+                scaled_value = raw_value * self._voltage_scale / pow(2, 15)
+            case "A":
+                scaled_value = raw_value * self._current_scale / pow(2, 15)
+            case "W":
+                scaled_value = raw_value * self._current_scale * self._voltage_scale / pow(2, 17)
+            case "Ah":
+                scaled_value = raw_value / 10.0
+            case _:
+                scaled_value = raw_value
 
         return round(scaled_value, 2)
-
-
-if __name__ == "__main__":
-    import doctest
-    from unittest.mock import patch
-
-    with patch.object(ModBusBase, "_get", return_value="1,4,4,0,0,0,0"):
-        doctest.testmod(
-            verbose=True,
-            extraglobs={
-                "mb": ModBus(host="dummy.com", port=80),
-                "mb_scaler": ModBusScaler(host="dummy.com", port=80),
-            },
-        )

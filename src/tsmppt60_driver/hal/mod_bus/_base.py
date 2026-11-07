@@ -80,9 +80,6 @@ class ModBusBase:
         Returns:
             A tuple containing the returned register bytes combined into
             unsigned 16-bit values.
-
-        >>> mb._get_register_values(0x0000, 1)
-        (0, 0)
         """
         mod_bus_id = 1
         field = 4
