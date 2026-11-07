@@ -8,6 +8,8 @@ from ..register import RegisterValue
 class ModBusBase:
     """Provide the common HTTP and register-reading operations for ModBus."""
 
+    BITS_PER_REGISTER = 16
+
     def __init__(self, host: str, port: int, cgi: str, timeout: int, *, debug: bool = False):
         """Initialize a ModBus connection.
 
@@ -29,6 +31,17 @@ class ModBusBase:
 
         self._connection = HTTPConnection(host, port=port, timeout=timeout)
         self._endpoint = f"/{cgi}"
+
+    @classmethod
+    def _as_unsigned(cls, value: int) -> int:
+        """Convert the given value to 16bits unsigned value.
+
+        Args:
+            value: Value to convert.
+        Returns:
+            Unsigned value
+        """
+        return value & (2**cls.BITS_PER_REGISTER - 1)
 
     def _get(self, params: list[str], *, retries: int = 3, initial_wait: int = 1) -> str:
         """Retrieve a raw response from the TS-MPPT-60.
@@ -94,6 +107,6 @@ class ModBusBase:
             idx += 1
             short_value += reg.values[idx]
             idx += 1
-            short_values.append(short_value)
+            short_values.append(self._as_unsigned(short_value))
 
         return tuple(short_values)

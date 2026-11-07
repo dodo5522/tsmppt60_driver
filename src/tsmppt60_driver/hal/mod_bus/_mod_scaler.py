@@ -26,7 +26,7 @@ class ModBusScaler(ModBusBase):
         0.0
         """
         values = self._get_register_values(reg.address, reg.registers)
-        return float(values[0]) + (float(values[1]) / pow(2, 16))
+        return float(values[0]) + (float(values[1]) / pow(2, self.BITS_PER_REGISTER))
 
     def get_voltage_scaler(self) -> float:
         """Return the voltage scale factor."""

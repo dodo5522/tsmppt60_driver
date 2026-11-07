@@ -2,6 +2,27 @@ from ._base import ModBusBase
 from ._mod_scaler import ModBusScaler
 
 
+def _as_two_complement(raw_value: int, bits: int) -> int:
+    """Calculate the raw value with two complementary bits.
+
+    Args:
+        raw_value: Raw register value
+        bits: Number of bits
+    Returns:
+        Positive or negative value
+    """
+    mask = 2**bits - 1
+    sign_mask = 2 ** (bits - 1)
+
+    value = raw_value
+    value &= mask
+    if value & sign_mask:
+        value ^= mask
+        value = -1 * (value + 1)
+
+    return value
+
+
 class ModBus(ModBusBase):
     """Read raw and scaled values from the TS-MPPT-60."""
 
@@ -13,7 +34,7 @@ class ModBus(ModBusBase):
         self._voltage_scale = scaler.get_voltage_scaler()
         self._current_scale = scaler.get_current_scaler()
 
-    def get_value(self, address: int, register: int):
+    def get_value(self, address: int, register: int) -> int:
         """Return the raw value stored at a register address.
 
         Args:
@@ -27,18 +48,17 @@ class ModBus(ModBusBase):
         >>> mb.get_value(0x0027, 1)
         0
         """
-        values = self._get_register_values(address, register)
+        raw_values = self._get_register_values(address, register)
 
-        if register > 1:
-            raw_value = (values[0] << 16) | (values[1] & 0xFFFF)
-        else:
-            raw_value = values[0]
-            raw_value &= 0xFFFF
-            if raw_value & 0x8000:
-                raw_value ^= 0xFFFF
-                raw_value = -1 * (raw_value + 1)
+        match register:
+            case 1:
+                value = _as_two_complement(raw_values[0], 16)
+            case 2:
+                value = _as_two_complement((raw_values[0] << self.BITS_PER_REGISTER) | raw_values[1], 32)
+            case _:
+                raise ValueError("Invalid register number")
 
-        return raw_value
+        return value
 
     def get_scaled_value(self, address: int, scale_factor: str, register: int) -> float:
         """Return a raw register value converted to the requested unit.
