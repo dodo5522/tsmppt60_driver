@@ -1,5 +1,6 @@
 import pytest
 from pytest_mock import MockerFixture
+
 from tsmppt60_driver import ModBus, ModBusScaler
 
 

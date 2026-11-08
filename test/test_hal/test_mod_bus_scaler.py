@@ -1,5 +1,6 @@
 import pytest
 from pytest import param
+
 from tsmppt60_driver.hal import RegisterMap
 
 

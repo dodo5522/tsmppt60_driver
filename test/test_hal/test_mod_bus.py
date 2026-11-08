@@ -49,8 +49,8 @@ def test_get_value_error(mocked_mod_bus, expected_query_param):
 @pytest.mark.parametrize(
     "registers, scale_factor, response, expected",
     [
-        param(1, "V", "1,4,2,17,160", 24.78515625, id="voltage"),
-        param(1, "A", "1,4,2,255,168", -0.21484375, id="current"),
+        param(1, "V", "1,4,2,17,160", 24.79, id="voltage"),
+        param(1, "A", "1,4,2,255,168", -0.21, id="current"),
         param(1, "W", "1,4,2,0,23", 2.53, id="Watt power"),
         param(2, "Ah", "1,4,4,0,2,231,134", 19034.2, id="ampere hour"),
         param(1, "C", "1,4,2,0,25", 25.0, id="degree Celsius"),
@@ -66,7 +66,7 @@ def test_get_scaled_value(
         scale_factor=scale_factor,
         register=registers,
     )
-    assert round(actual, 2) == round(expected, 2)
+    assert actual == expected
 
     request_args = connection.request.call_args.args
     assert request_args[0] == "GET"
