@@ -26,7 +26,7 @@ def main():
         help="Enable debug mode (default: False)",
     )
     args = parser.parse_args()
-    driver = TsMppt60(args.host, port=args.port)
+    driver = TsMppt60(args.host, port=args.port, debug=args.debug)
 
     logger = Logger(
         "TS-MPPT-60",

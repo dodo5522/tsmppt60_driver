@@ -1,7 +1,7 @@
-import logging
 from http.client import HTTPConnection
 from time import sleep
 
+from ...util import DEBUG, INFO, Logger
 from ..register import RegisterValue
 
 
@@ -23,12 +23,7 @@ class ModBusBase:
             timeout: Connection timeout in seconds.
             debug: Enable debug logging when ``True``.
         """
-        self._logger = logging.getLogger(type(self).__name__)
-        self._logger.addHandler(logging.StreamHandler())
-
-        if debug:
-            self._logger.setLevel(logging.DEBUG)
-
+        self._logger = Logger(type(self).__name__, level=DEBUG if debug else INFO, full_log=debug)
         self._connection = HTTPConnection(host, port=port, timeout=timeout)
         self._endpoint = f"/{cgi}"
 
