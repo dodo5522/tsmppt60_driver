@@ -74,3 +74,22 @@ The register table lists the hourmeter as `0x002A=HI`, `0x002B=LO`, while the ex
 page 25 uses `0x002A=LO`, `0x002B=HI`. Because the `V_PU`/`I_PU` HI/LO naming is consistent,
 the table order is the more reasonable implementation interpretation. This is an inference,
 not an explicit correction in the source; verify it against the target firmware or hardware.
+
+
+## State values
+
+PDF page 13 defines LED state `0x0031` as: 0 START, 1 START2, 2 BRANCH,
+3 fast green blink, 4 slow green blink, 5 green blink at 1 Hz, 6 green,
+7 undefined, 8 yellow, 9 undefined, 10 blinking red, 11 red, 12 R-Y-G error,
+13 R/Y-G error, 14 R/G-Y error, 15 R-Y error (HTD), 16 R-G error (HVD),
+17 R/Y-G/Y error, 18 G/Y/R error, 19 G/Y/R twice. The source does not
+explain every pattern further.
+
+Charge state `0x0032`: 0 START, 1 NIGHT_CHECK, 2 DISCONNECT, 3 NIGHT,
+4 FAULT, 5 MPPT, 6 ABSORPTION, 7 FLOAT, 8 EQUALIZE, 9 SLAVE.
+
+The slow voltage and current (`0x0026`/`0x0027`) are filtered with a time
+constant of approximately one minute. Target voltage `0x0033` varies with the
+charge stage and is temperature compensated. The battery temperature comes
+from the ambient sensor or an attached RTS. Array current is not measured with
+precision shunts and can differ from actual current by ±20% (PDF pages 9–10, 14).

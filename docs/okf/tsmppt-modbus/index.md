@@ -13,6 +13,7 @@ Implementation knowledge derived from Morningstar's TriStar MPPT Modbus Specific
 
 ## Contents
 
+- [Driver implementation coverage](driver-coverage.md)
 - [Communication](communication.md)
 - [RAM registers](ram-registers.md)
 - [EEPROM settings](eeprom-settings.md)
