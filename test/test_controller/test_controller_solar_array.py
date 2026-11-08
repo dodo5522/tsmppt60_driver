@@ -1,6 +1,7 @@
 from unittest.mock import call
 
 import pytest
+
 from tsmppt60_driver.controller import SolarArray
 from tsmppt60_driver.hal import RegisterMap
 

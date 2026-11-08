@@ -1,12 +1,14 @@
-import logging
-from http.client import HTTPConnection
+from http.client import HTTPConnection, HTTPResponse
 from time import sleep
 
+from ...util import DEBUG, INFO, Logger
 from ..register import RegisterValue
 
 
 class ModBusBase:
     """Provide the common HTTP and register-reading operations for ModBus."""
+
+    BITS_PER_REGISTER = 16
 
     def __init__(self, host: str, port: int, cgi: str, timeout: int, *, debug: bool = False):
         """Initialize a ModBus connection.
@@ -21,14 +23,31 @@ class ModBusBase:
             timeout: Connection timeout in seconds.
             debug: Enable debug logging when ``True``.
         """
-        self._logger = logging.getLogger(type(self).__name__)
-        self._logger.addHandler(logging.StreamHandler())
-
-        if debug:
-            self._logger.setLevel(logging.DEBUG)
-
+        self._logger = Logger(type(self).__name__, level=DEBUG if debug else INFO, full_log=debug)
         self._connection = HTTPConnection(host, port=port, timeout=timeout)
         self._endpoint = f"/{cgi}"
+
+    @classmethod
+    def _as_u8(cls, value: int) -> int:
+        """Convert the given value to 8bits unsigned value.
+
+        Args:
+            value: Value to convert.
+        Returns:
+            Unsigned value
+        """
+        return value & 0xFF
+
+    @classmethod
+    def _as_u16(cls, value: int) -> int:
+        """Convert the given value to 16bits unsigned value.
+
+        Args:
+            value: Value to convert.
+        Returns:
+            Unsigned value
+        """
+        return value & 0xFFFF
 
     def _get(self, params: list[str], *, retries: int = 3, initial_wait: int = 1) -> str:
         """Retrieve a raw response from the TS-MPPT-60.
@@ -45,9 +64,12 @@ class ModBusBase:
 
         while retries:
             self._connection.request("GET", f"{self._endpoint}?{'&'.join(params)}")
-            response = self._connection.getresponse()
+            response: HTTPResponse = self._connection.getresponse()
 
-            if response.status != 200:
+            status_code = response.status
+            self._logger.debug(f"{status_code=}, {retries=}, {wait_sec=}")
+
+            if status_code != 200:
                 sleep(wait_sec)
                 retries -= 1
                 wait_sec *= 2
@@ -67,9 +89,6 @@ class ModBusBase:
         Returns:
             A tuple containing the returned register bytes combined into
             unsigned 16-bit values.
-
-        >>> mb._get_register_values(0x0000, 1)
-        (0, 0)
         """
         mod_bus_id = 1
         field = 4
@@ -80,20 +99,23 @@ class ModBusBase:
                     f"ID={mod_bus_id}",
                     f"F={field}",
                     f"AHI={address >> 8}",
-                    f"ALO={address & 255}",
+                    f"ALO={self._as_u8(address)}",
                     f"RHI={registers >> 8}",
-                    f"RLO={registers & 255}",
+                    f"RLO={self._as_u8(registers)}",
                 ]
             )
         )
-        short_values = []
+        values = []
 
         idx = 0
         while idx < len(reg.values):
-            short_value = reg.values[idx] << 8
+            u16_value = reg.values[idx] << 8
             idx += 1
-            short_value += reg.values[idx]
+            u16_value += reg.values[idx]
             idx += 1
-            short_values.append(short_value)
+            values.append(self._as_u16(u16_value))
 
-        return tuple(short_values)
+        if registers != len(values):
+            raise ValueError(f"Requested {registers=} unmatched to the number of register {values=}")
+
+        return tuple(values)

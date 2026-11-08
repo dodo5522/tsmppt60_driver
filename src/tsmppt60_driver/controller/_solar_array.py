@@ -19,7 +19,7 @@ class SolarArray(ControllerBase):
         """
         ControllerBase.__init__(
             self,
-            ModBus(host, port=port),
+            ModBus(host, port=port, debug=debug),
             self.__class__.__name__,
             [
                 RegisterMap.ARRAY_VOLTAGE,

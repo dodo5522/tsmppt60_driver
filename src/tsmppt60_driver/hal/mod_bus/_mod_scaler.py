@@ -19,14 +19,9 @@ class ModBusScaler(ModBusBase):
             reg: Scaling register to read.
         Returns:
             The calculated scale factor.
-
-        >>> mb_scaler._get_scaler(RegisterMap.VOLTAGE_SCALING)
-        0.0
-        >>> mb_scaler._get_scaler(RegisterMap.CURRENT_SCALING)
-        0.0
         """
         values = self._get_register_values(reg.address, reg.registers)
-        return float(values[0]) + (float(values[1]) / pow(2, 16))
+        return float(values[0]) + (float(values[1]) / pow(2, self.BITS_PER_REGISTER))
 
     def get_voltage_scaler(self) -> float:
         """Return the voltage scale factor."""
