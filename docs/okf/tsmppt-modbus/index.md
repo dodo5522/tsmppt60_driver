@@ -16,6 +16,8 @@ Implementation knowledge derived from Morningstar's TriStar MPPT Modbus Specific
 - [Driver implementation coverage](driver-coverage.md)
 - [Communication](communication.md)
 - [RAM registers](ram-registers.md)
+- [Daily logger](daily-logger.md)
+- [Active network registers](network-registers.md)
 - [EEPROM settings](eeprom-settings.md)
 - [Coils and commands](coils.md)
 - [Scaling, signedness, and word order](scaling.md)

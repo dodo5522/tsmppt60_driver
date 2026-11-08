@@ -44,3 +44,11 @@ The specification notes that the TCP socket is closed after each Modbus response
 - `0x2B`, subcode `0x0E` Read Device Identification
 
 Device Identification supports Basic Device Identification (ID code `0x01`) only.
+
+The default NetBIOS name is `tsmppt` followed by the serial number with no
+spaces; the documented LiveView address uses the same name. Both primary and
+secondary DNS fallback addresses are `192.168.1.1`. The controller accepts one
+or two serial stop bits and sends two for byte padding. The page-2 note marks
+the per-response TCP socket closure as a change pending. See
+[active network registers](network-registers.md) for active settings and basic
+device-identification objects.

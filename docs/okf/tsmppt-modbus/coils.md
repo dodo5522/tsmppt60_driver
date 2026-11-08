@@ -35,3 +35,10 @@ Set-only coils always read back as 0. Treat undefined coils as reserved and do n
 
 EEPROM writes use `0x06 Write Single Register`. The controller does not verify the written value.
 Any EEPROM write sets an EEPROM-changed fault; reset the controller to clear that fault.
+
+The PDF page 7 leaves the timing of `0x00FF` ambiguous (“respond and then
+reset?”). Notification coils and communications-server reset are listed
+without further behavior. Coil logical addresses for `0x1000`–`0x1003` and
+`0x10FF` are printed as 4096–4099 and 4351, respectively, inconsistent with
+the PDU-plus-one convention used for the preceding coils; preserve the source
+values until verified.

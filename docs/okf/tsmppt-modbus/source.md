@@ -27,8 +27,10 @@ bundle use the PDF's printed page numbers (which match its 1-based page position
 
 ## Extraction coverage and evidence
 
-This is a curated implementation reference, not a complete transcription. Absence of a
-register or field in the JSON does not establish absence from the specification.
+The Markdown documents summarize the V10.2 sections and preserve known discrepancies.
+They are not a verbatim transcription; reserved ranges and some illustrative examples
+remain in the source PDF. `registers.json` is a curated subset, not a complete registry.
+Absence of a register or field from JSON does not establish absence from the specification.
 
 - Pages 3-4: RAM addresses, Logical Addresses, units, `Signed` column, and scaling.
 - Page 14: charge-Ah and kWh counter descriptions.
@@ -42,3 +44,8 @@ legend in the PDF. See [Scaling and signedness](scaling.md#signedness).
 The separately supplied `TS-MPPT-600V_modbus_doc_public.Aug-2014.pdf` describes a
 different controller model. It is not an authoritative source for this MPPT-45/60
 bundle; do not merge its register definitions without model-specific attribution.
+
+Coverage review for issue #76 includes pages 2–7 (communication and tables),
+8–24 (variable descriptions), 25 (worked examples), and 26 (references and
+revision history). The [driver inventory](driver-coverage.md) separates current
+implementation from source coverage.

@@ -93,3 +93,29 @@ constant of approximately one minute. Target voltage `0x0033` varies with the
 charge stage and is temperature compensated. The battery temperature comes
 from the ambient sensor or an attached RTS. Array current is not measured with
 precision shunts and can differ from actual current by ±20% (PDF pages 9–10, 14).
+
+## Additional filtered ADC values
+
+PDF pages 3 and 9–10 list these signed values; `n` is the signed raw word.
+The source has an apparent missing `n` in the `0x001F` formula; the formula
+below preserves it rather than silently correcting it.
+
+| PDU | Logical | Measurement | Source scaling |
+|---|---:|---|---|
+| `0x001E` | 31 | 12 V supply | n × 18.612 / 2^15 |
+| `0x001F` | 32 | 3 V supply | 6.6 / 2^15 (no n printed) |
+| `0x0020` | 33 | MeterBus supply | n × 18.612 / 2^15 |
+| `0x0021` | 34 | 1.8 V supply | n × 3 / 2^15 |
+| `0x0022` | 35 | External reference voltage | n × 3 / 2^15 |
+
+`0x0024` is the optional remote temperature sensor; `0x80` indicates disconnect.
+The filtered battery regulation voltage `0x0018` follows valid battery sense
+voltage, otherwise terminal voltage. Battery extrema `0x0028`/`0x0029` are
+long-term values reset when resettable Ah is cleared. DIP bit 0 is switch 1.
+
+For slave control `0x0059`, writing again after timeout exits the fault and
+resumes operation. Fixed-array-voltage controls `0x005A`/`0x005B` require
+processor A firmware V09 or later. With percentage control, periodic Voc checks
+adjust the target; changing the percentage takes effect at the next Voc check
+(PDF page 17). See [daily logger](daily-logger.md) for today's RAM values and
+[active network settings](network-registers.md) for network RAM values.
