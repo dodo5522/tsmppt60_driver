@@ -5,13 +5,13 @@ from pytest import param
 @pytest.mark.parametrize(
     "registers, response, expected",
     [
-        param(1, "1,4,2,17,160", 4512.0, id="single register with positive raw from 2 values"),
-        param(2, "1,4,4,17,160,10,1", 295700993.0, id="double registers with positive raw from 4 values"),
-        param(1, "1,4,2,255,168", -88.0, id="single register with negative raw from 2 values"),
+        param(1, "1,4,2,17,160", 4512, id="single register with positive raw from 2 values"),
+        param(2, "1,4,4,17,160,10,1", 295700993, id="double registers with positive raw from 4 values"),
+        param(1, "1,4,2,255,168", -88, id="single register with negative raw from 2 values"),
         param(
             2,
             "1,4,4,255,168,10,1",
-            4289202689.0,
+            4289202689,
             # e.g. hourmeter / alarm bitfield / Ah charge
             id="double registers preserve unsigned value with high bit set",
         ),
@@ -20,7 +20,7 @@ from pytest import param
 def test_get_value(mocked_mod_bus, registers: int, response, expected, expected_query_param):
     md, connection = mocked_mod_bus(200, response, 0.0, 0.0)
     actual = md.get_value(address=0, register=registers)
-    assert round(actual, 2) == round(expected, 2)
+    assert actual == expected
 
     request_args = connection.request.call_args.args
     assert request_args[0] == "GET"
