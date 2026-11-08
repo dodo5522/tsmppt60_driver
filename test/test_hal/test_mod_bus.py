@@ -5,9 +5,13 @@ from pytest import param
 @pytest.mark.parametrize(
     "registers, response, expected",
     [
-        param(1, "1,4,2,17,160", 4512, id="single register with positive raw from 2 values"),
-        param(2, "1,4,4,17,160,10,1", 295700993, id="double registers with positive raw from 4 values"),
-        param(1, "1,4,2,255,168", -88, id="single register with negative raw from 2 values"),
+        param(1, "1,4,2,128,0", -32768, id="minimum negative value with single register"),
+        param(1, "1,4,2,255,168", -88, id="negative value with single register's bit as not all 1"),
+        param(1, "1,4,2,255,255", -1, id="negative value with single register's bit as all 1"),
+        param(1, "1,4,2,0,0", 0, id="zero with single register"),
+        param(1, "1,4,2,17,160", 4512, id="positive value with single register's bit as not all 1"),
+        param(1, "1,4,2,127,255", 32767, id="maximum positive value with single register"),
+        param(2, "1,4,4,0,0,0,0", 0, id="zero with double registers"),
         param(
             2,
             "1,4,4,255,168,10,1",
@@ -15,6 +19,7 @@ from pytest import param
             # e.g. hourmeter / alarm bitfield / Ah charge
             id="double registers preserve unsigned value with high bit set",
         ),
+        param(2, "1,4,4,255,255,255,255", 4294967295, id="maximum positive value with double registers"),
     ],
 )
 def test_get_value(mocked_mod_bus, registers: int, response, expected, expected_query_param):
