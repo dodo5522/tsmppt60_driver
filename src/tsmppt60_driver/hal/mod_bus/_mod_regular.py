@@ -49,7 +49,7 @@ class ModBus(ModBusBase):
             case 1:
                 value = _as_two_complement(raw_values[0], 16)
             case 2:
-                value = _as_two_complement((raw_values[0] << self.BITS_PER_REGISTER) | raw_values[1], 32)
+                value = (raw_values[0] << self.BITS_PER_REGISTER) | raw_values[1]
             case _:
                 raise ValueError("Invalid register number")
 

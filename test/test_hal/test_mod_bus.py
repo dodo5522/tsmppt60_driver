@@ -8,7 +8,13 @@ from pytest import param
         param(1, "1,4,2,17,160", 4512.0, id="single register with positive raw from 2 values"),
         param(2, "1,4,4,17,160,10,1", 295700993.0, id="double registers with positive raw from 4 values"),
         param(1, "1,4,2,255,168", -88.0, id="single register with negative raw from 2 values"),
-        param(2, "1,4,4,255,168,10,1", -5764607.0, id="double registers with negative raw from 4 values"),
+        param(
+            2,
+            "1,4,4,255,168,10,1",
+            4289202689.0,
+            # e.g. hourmeter / alarm bitfield / Ah charge
+            id="double registers preserve unsigned value with high bit set",
+        ),
     ],
 )
 def test_get_value(mocked_mod_bus, registers: int, response, expected, expected_query_param):
