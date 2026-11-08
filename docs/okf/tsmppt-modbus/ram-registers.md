@@ -12,7 +12,11 @@ sources:
 # RAM Registers
 
 RAM registers are updated continuously. The curated machine-readable definitions are in
-`registers.json`.
+`registers.json`. The tables below summarize names and units, not all source
+columns. The original tables on PDF pages 3-4 also contain signedness and scaling;
+see [Scaling and signedness](scaling.md#signedness) and the machine-readable
+`source_page` and `signed_column` fields. The JSON remains a curated subset,
+not a complete transcription of all RAM, EEPROM, and network registers.
 
 ## Core measurements
 
@@ -48,7 +52,8 @@ RAM registers are updated continuously. The curated machine-readable definitions
 | `0x0033` | 52 | Target regulation voltage | V |
 | `0x0034`/`0x0035` | 53/54 | Resettable charge Ah HI/LO | Ah |
 | `0x0036`/`0x0037` | 55/56 | Total charge Ah HI/LO | Ah |
-| `0x0038`/`0x0039` | 57/58 | Resettable/total charge kWh | kWh |
+| `0x0038` | 57 | Resettable charge kWh (one word) | kWh |
+| `0x0039` | 58 | Total charge kWh (one word) | kWh |
 | `0x003A` | 59 | Last output power | W |
 | `0x003B` | 60 | Last input power | W |
 | `0x003C` | 61 | Last sweep maximum power | W |

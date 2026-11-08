@@ -17,7 +17,7 @@ Implementation knowledge derived from Morningstar's TriStar MPPT Modbus Specific
 - [RAM registers](ram-registers.md)
 - [EEPROM settings](eeprom-settings.md)
 - [Coils and commands](coils.md)
-- [Scaling and word order](scaling.md)
+- [Scaling, signedness, and word order](scaling.md)
 - [Faults and alarms](faults-alarms.md)
 - [Curated machine-readable register definitions](registers.json)
 - [Source and maintenance](source.md)
@@ -26,7 +26,9 @@ Implementation knowledge derived from Morningstar's TriStar MPPT Modbus Specific
 
 Treat PDU addresses as the 0-based addresses listed in the specification. PDU addresses
 and Logical Addresses are distinct and must not be conflated. Follow each field's stated
-HI/LO order for multi-word values.
+HI/LO order for multi-word values. Check each field's `Signed` column; neither word
+count nor an omitted JSON field establishes signedness. See `scaling.md` for the
+distinction between source markings and the interpretation of blank cells.
 
 EEPROM writes, slave control, and fixed array-voltage control have operational impact.
 Keep them separate from read-only operations and require an explicit write call.
