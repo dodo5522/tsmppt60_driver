@@ -25,12 +25,12 @@ class RegisterValue(RegisterBase):
     @classmethod
     def new(cls, raw: str) -> Self:
         """Create an instance from a comma-separated ModBus response."""
-        [mb_id, field, length, *values] = [int(v) for v in raw.split(",")]
+        [mb_id, field_, length, *values] = [int(v) for v in raw.split(",")]
         if length != len(values):
             raise ValueError(f"Invalid {length=} with {values=}")
 
         return cls(
             mb_id=mb_id,
-            field=field,
+            field=field_,
             values=values,
         )
