@@ -1,3 +1,6 @@
+from datetime import datetime, timezone
+from typing import Any
+
 from ..controller import (
     Battery,
     ChargeController,
@@ -56,7 +59,9 @@ class TsMppt60:
             A nested dictionary containing the selected status data.
         """
         target_groups = groups if groups else self.groups
-        status = {}
+        status: dict[str, Any] = {
+            "measured_at": datetime.now(timezone.utc).isoformat(),
+        }
 
         for target_group in target_groups:
             if controller := self._controllers.get(target_group):
