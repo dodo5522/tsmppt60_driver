@@ -21,6 +21,7 @@ dev = [
     "pytest-mock~=3.12",
     "pytest-cov~=7.1",
     "ruff~=0.16.3",
+    "time-machine~=3.6.0",
 ]
 
 [build-system]
