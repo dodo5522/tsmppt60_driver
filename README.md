@@ -80,8 +80,9 @@ before the JSON payload, so it is no longer plain JSON.
 
 ### Python API
 
-`TsMppt60` reads all controller groups by default. The result is a
-dictionary keyed by group, with each group's status keyed by label.
+`TsMppt60` reads all controller groups by default. The result contains a
+top-level `measured_at` string and a dictionary for each selected group,
+with each group's status keyed by label.
 
 ```python
 from tsmppt60_driver import TsMppt60
@@ -94,6 +95,7 @@ The result has the following structure:
 
 ```python
 {
+    "measured_at": "2026-11-22T02:11:24.148712+00:00",
     "Battery": {
         "Battery Voltage": {"value": 23.93, "unit": "V"},
         "Target Voltage": {"value": 28.6, "unit": "V"},
@@ -118,8 +120,13 @@ The result has the following structure:
 }
 ```
 
+`measured_at` is an ISO 8601 timestamp with the UTC offset `+00:00`,
+generated from the host's clock immediately before reading the controller
+groups. It records the start of the read operation. Values are read
+sequentially and may represent different instants.
+
 To read only selected groups, pass their names using the keyword-only
-`groups` argument:
+`groups` argument. The result still includes `measured_at`:
 
 ```python
 status.get(groups={"Battery"})
@@ -130,6 +137,17 @@ The `groups` property returns the available group names:
 ```python
 print(status.groups)
 # {'Battery', 'SolarArray', 'ChargeController'}
+```
+
+When iterating over group data, use `status.groups` and select the groups
+present in the result:
+
+```python
+data = status.get(groups={"Battery"})
+for group in status.groups:
+    if group in data:
+        for label, measurement in data[group].items():
+            print(group, label, measurement["value"], measurement["unit"])
 ```
 
 Individual controllers are also available from the top-level package:
